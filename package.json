@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "eslint:check": "eslint -ext .ts,.tsx,.js,.jsx ./src",
+    "eslint:check": "eslint --ext .ts,.tsx,.js,.jsx ./src",
     "eslint:fix": "yarn eslint:check --fix",
     "prettier:check": "prettier --check ./**/*.{ts,tsx,js,jsx,json,*rc}",
     "prettier:write": "prettier --write ./**/*.{ts,tsx,js,jsx,json,*rc}",
