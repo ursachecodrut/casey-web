@@ -1,10 +1,9 @@
 {
-  "name": "client",
+  "name": "case-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prepare": "husky install",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -13,7 +12,9 @@
     "prettier:check": "prettier --check ./**/*.{ts,tsx,js,jsx,json,*rc}",
     "prettier:write": "prettier --write ./**/*.{ts,tsx,js,jsx,json,*rc}",
     "lint": "yarn eslint:check && yarn prettier:check",
-    "precommit": "lint-staged && yarn lint"
+    "precommit": "lint-staged && yarn lint",
+    "prepare": "husky install",
+    "commit": "cz"
   },
   "dependencies": {
     "react": "^18.2.0",
