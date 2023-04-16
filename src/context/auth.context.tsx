@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }: Props) => {
 
   const logout = useCallback(() => {
     setCurrentUser(null);
+    localStorage.removeItem('isAuthenticated');
     return signOut(auth);
   }, []);
 
