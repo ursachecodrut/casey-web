@@ -9,7 +9,6 @@ type ResponseError = {
 
 export const ErrorPage = () => {
   const error = useRouteError() as ResponseError;
-  console.error(error);
 
   return (
     <div id="error-page">

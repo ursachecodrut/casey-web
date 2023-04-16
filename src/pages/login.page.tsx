@@ -16,7 +16,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Snackbar from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
-import { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks';
 
@@ -46,6 +46,7 @@ export const LoginPage = () => {
     try {
       setLoading(true);
       await login({ email, password });
+      localStorage.setItem('isAuthenticated', 'true');
       setLoading(false);
       navigate('/profile');
     } catch (error) {
@@ -58,6 +59,7 @@ export const LoginPage = () => {
     try {
       setLoading(true);
       await signInWithGoogle();
+      localStorage.setItem('isAuthenticated', 'true');
       setLoading(false);
       navigate('/profile');
     } catch (error) {
@@ -70,6 +72,7 @@ export const LoginPage = () => {
     try {
       setLoading(true);
       await signInWithFacebook();
+      localStorage.setItem('isAuthenticated', 'true');
       setLoading(false);
       navigate('/profile');
     } catch (error) {
@@ -80,7 +83,7 @@ export const LoginPage = () => {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleCloseSnackbar = (e: SyntheticEvent | Event, reason?: string) => {
+  const handleCloseSnackbar = (reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }

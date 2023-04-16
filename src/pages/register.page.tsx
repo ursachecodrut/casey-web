@@ -16,7 +16,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Snackbar from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
-import { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks';
 
@@ -24,6 +24,7 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const { register, signInWithGoogle, signInWithFacebook } = useAuth();
@@ -43,7 +44,10 @@ export const RegisterPage = () => {
   const handleRegiserSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await register({ email, password });
+      localStorage.setItem('isAuthenticated', 'true');
+      setLoading(false);
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
@@ -53,7 +57,10 @@ export const RegisterPage = () => {
 
   const handleGoogleSignIn = async () => {
     try {
+      setLoading(true);
       await signInWithGoogle();
+      localStorage.setItem('isAuthenticated', 'true');
+      setLoading(false);
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
@@ -63,7 +70,10 @@ export const RegisterPage = () => {
 
   const handleFacebookSignIn = async () => {
     try {
+      setLoading(true);
       await signInWithFacebook();
+      localStorage.setItem('isAuthenticated', 'true');
+      setLoading(false);
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
@@ -73,12 +83,14 @@ export const RegisterPage = () => {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleCloseSnackbar = (e: SyntheticEvent | Event, reason?: string) => {
+  const handleCloseSnackbar = (reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
     setOpenSnackbar(false);
   };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <Box
