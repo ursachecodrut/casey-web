@@ -7,6 +7,21 @@ import { ProfilePage } from './pages/profile.page';
 const router = createBrowserRouter([
   {
     path: '/',
+    element: (
+      <Protected>
+        <Root />
+      </Protected>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+    ],
+  },
+  {
+    path: '/',
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
@@ -17,14 +32,6 @@ const router = createBrowserRouter([
       {
         path: '/register',
         element: <RegisterPage />,
-      },
-      {
-        path: '/profile',
-        element: (
-          <Protected>
-            <ProfilePage />
-          </Protected>
-        ),
       },
     ],
   },

@@ -51,7 +51,7 @@ export const LoginPage = () => {
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -64,7 +64,7 @@ export const LoginPage = () => {
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -77,16 +77,13 @@ export const LoginPage = () => {
       navigate('/profile');
     } catch (error) {
       setOpenSnackbar(true);
-      console.log(error);
+      console.error(error);
     }
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleCloseSnackbar = (reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
   };
 
