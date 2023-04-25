@@ -17,7 +17,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../hooks';
 
@@ -25,6 +25,7 @@ const Links = ['Recipes', 'Shopping'];
 
 const NavLink = ({ children }: { children: ReactNode }) => (
   <Link
+    as={RouterLink}
     px={2}
     py={1}
     rounded="md"
@@ -32,7 +33,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: 'none',
       bg: useColorModeValue('gray.200', 'gray.700'),
     }}
-    href="#test"
+    to="/"
   >
     {children}
   </Link>

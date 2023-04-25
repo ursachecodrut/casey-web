@@ -30,6 +30,12 @@
         "unnamedComponents": "arrow-function"
       }
     ],
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "no-console": [
+      "error",
+      {
+        "allow": ["error"]
+      }
+    ]
   }
 }

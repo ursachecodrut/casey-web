@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   Container,
   Divider,
@@ -10,52 +11,119 @@ import {
   HStack,
   Heading,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Stack,
   Text,
   VisuallyHidden,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FirebaseError } from 'firebase/app';
+import { FaFacebook } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import { PasswordField } from '../components';
-import { GoogleIcon } from '../icons';
 import { useAuth } from '../hooks';
-
-const authSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Email is required' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(8, { message: 'Password must be at least 8 characters' }),
-  persist: z.boolean(),
-});
-
-type LoginFormValues = z.infer<typeof authSchema>;
+import { handleFirebaseError } from '../firebase/firebase.errors';
+import {
+  AuthFormValues,
+  AuthSchema,
+  EmailFormValues,
+  EmailSchema,
+} from '../schemas';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle } = useAuth();
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { signIn, signInWithGoogle, signInWithFacebook, resetPassword } =
+    useAuth();
   const {
-    handleSubmit,
-    register,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(authSchema),
+    handleSubmit: handleSubmitSignIn,
+    register: registerSignIn,
+    formState: { errors: errorsSignIn, isSubmitting: isSubmittingSignIn },
+  } = useForm<AuthFormValues>({
+    resolver: zodResolver(AuthSchema),
+  });
+  const {
+    handleSubmit: handleSubmitPasswordReset,
+    register: registerPasswordReset,
+    formState: {
+      errors: errorsPasswordReset,
+      isSubmitting: isSubmittingPasswordReset,
+    },
+  } = useForm<EmailFormValues>({
+    resolver: zodResolver(EmailSchema),
   });
 
-  const onSignIn: SubmitHandler<LoginFormValues> = async (data) => {
-    await signIn(data);
-    localStorage.setItem('isAuthenticated', 'true');
-    navigate('/profile');
+  const onSignIn: SubmitHandler<AuthFormValues> = async (data) => {
+    try {
+      await signIn(data);
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/profile');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const onPasswordReset: SubmitHandler<EmailFormValues> = async (data) => {
+    try {
+      await resetPassword(data.email);
+      onClose();
+      toast({
+        title: 'Password reset email sent',
+        description: 'Check your email for further instructions',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
   };
 
   const onSignInWithGoogle = async () => {
-    await signInWithGoogle();
-    localStorage.setItem('isAuthenticated', 'true');
-    navigate('/profile');
+    try {
+      await signInWithGoogle();
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/profile');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const onSignInWithFacebook = async () => {
+    try {
+      await signInWithFacebook();
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/profile');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
   };
 
   return (
@@ -82,7 +150,7 @@ export const LoginPage = () => {
               <Text color="muted">Don&lsquo;t have an account?</Text>
               <Button
                 variant="link"
-                colorScheme="blue"
+                colorScheme="purple"
                 as={Link}
                 to="/register"
               >
@@ -99,40 +167,53 @@ export const LoginPage = () => {
           boxShadow={{ base: 'none', sm: 'md' }}
           borderRadius={{ base: 'none', sm: 'xl' }}
           as="form"
-          onSubmit={handleSubmit(onSignIn)}
+          onSubmit={handleSubmitSignIn(onSignIn)}
         >
           <Stack spacing="6">
             <Stack spacing="5">
-              <FormControl isInvalid={Boolean(errors.email)}>
+              <FormControl isInvalid={Boolean(errorsSignIn.email)}>
                 <FormLabel htmlFor="email">Email</FormLabel>
                 <Input
                   id="email"
                   placeholder="exemple@email.com"
                   autoComplete="email"
-                  {...register('email')}
+                  {...registerSignIn('email')}
                 />
                 <FormErrorMessage>
-                  {errors.email && errors.email.message}
+                  {errorsSignIn.email && errorsSignIn.email.message}
                 </FormErrorMessage>
               </FormControl>
 
               <PasswordField
-                error={errors.password}
-                registerReturn={register('password')}
+                error={errorsSignIn.password}
+                registerReturn={registerSignIn('password')}
               />
             </Stack>
 
             <HStack justify="space-between">
-              <Checkbox {...register('persist')} defaultChecked>
+              <Checkbox
+                colorScheme="purple"
+                {...registerSignIn('persist')}
+                defaultChecked
+              >
                 Remember me
               </Checkbox>
-              <Button variant="link" colorScheme="blue" size="sm">
+              <Button
+                variant="link"
+                colorScheme="purple"
+                size="sm"
+                onClick={onOpen}
+              >
                 Forgot password?
               </Button>
             </HStack>
 
             <Stack spacing="6">
-              <Button type="submit" variant="outline" isLoading={isSubmitting}>
+              <Button
+                type="submit"
+                variant="outline"
+                isLoading={isSubmittingSignIn}
+              >
                 Sign in
               </Button>
 
@@ -144,14 +225,60 @@ export const LoginPage = () => {
                 <Divider />
               </HStack>
 
-              <Button width="full" onClick={onSignInWithGoogle}>
-                <VisuallyHidden>Sign in with Google</VisuallyHidden>
-                <GoogleIcon boxSize={5} />
-              </Button>
+              <ButtonGroup width="full">
+                <Button width="full" onClick={onSignInWithGoogle}>
+                  <VisuallyHidden>Sign in with Google</VisuallyHidden>
+                  <FcGoogle size={20} />
+                </Button>
+                <Button
+                  width="full"
+                  colorScheme="facebook"
+                  onClick={onSignInWithFacebook}
+                >
+                  <VisuallyHidden>Sign in with Google</VisuallyHidden>
+                  <FaFacebook size={20} />
+                </Button>
+              </ButtonGroup>
             </Stack>
           </Stack>
         </Box>
       </Stack>
+
+      {/* Password Reset Modal */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent
+          as="form"
+          onSubmit={handleSubmitPasswordReset(onPasswordReset)}
+        >
+          <ModalHeader>Forgot your password?</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl isInvalid={Boolean(errorsPasswordReset.email)}>
+              <FormLabel>You will get an email with a reset link</FormLabel>
+              <Input
+                placeholder="Email to be reset"
+                {...registerPasswordReset('email')}
+              />
+              <FormErrorMessage>
+                {errorsPasswordReset.email && errorsPasswordReset.email.message}
+              </FormErrorMessage>
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              type="submit"
+              colorScheme="purple"
+              mr={3}
+              isLoading={isSubmittingPasswordReset}
+            >
+              Request Reset
+            </Button>
+            <Button onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };
