@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Checkbox,
   Container,
   Divider,
@@ -13,49 +14,63 @@ import {
   Stack,
   Text,
   VisuallyHidden,
+  useToast,
 } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
+import { FirebaseError } from 'firebase/app';
 import { PasswordField } from '../components';
-import { GoogleIcon } from '../icons';
 import { useAuth } from '../hooks';
-
-const authSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Email is required' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(8, { message: 'Password must be at least 8 characters' }),
-  persist: z.boolean(),
-});
-
-type RegisterFormValues = z.infer<typeof authSchema>;
+import { handleFirebaseError } from '../firebase/firebase.errors';
+import { AuthFormValues, AuthSchema } from '../schemas';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signUp, signInWithGoogle, signInWithFacebook } = useAuth();
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(authSchema),
+  } = useForm<AuthFormValues>({
+    resolver: zodResolver(AuthSchema),
   });
+  const toast = useToast();
 
-  const onSignUp: SubmitHandler<RegisterFormValues> = async (data) => {
+  const onSignUp: SubmitHandler<AuthFormValues> = async (data) => {
     await signUp(data);
     navigate('/profile');
     localStorage.setItem('isAuthenticated', 'true');
   };
 
   const onSignInWithGoogle = async () => {
-    await signInWithGoogle();
-    navigate('/profile');
-    localStorage.setItem('isAuthenticated', 'true');
+    try {
+      await signInWithGoogle();
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/profile');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const onSignInWithFacebook = async () => {
+    try {
+      await signInWithFacebook();
+      localStorage.setItem('isAuthenticated', 'true');
+      navigate('/profile');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
+    }
   };
 
   return (
@@ -80,7 +95,7 @@ export const RegisterPage = () => {
             </Heading>
             <HStack spacing="1" justify="center">
               <Text color="muted">Already have an account?</Text>
-              <Button variant="link" colorScheme="blue" as={Link} to="/login">
+              <Button variant="link" colorScheme="purple" as={Link} to="/login">
                 Sign in
               </Button>
             </HStack>
@@ -118,7 +133,11 @@ export const RegisterPage = () => {
             </Stack>
 
             <HStack justify="space-between">
-              <Checkbox {...register('persist')} defaultChecked>
+              <Checkbox
+                colorScheme="purple"
+                {...register('persist')}
+                defaultChecked
+              >
                 Remember me
               </Checkbox>
             </HStack>
@@ -136,10 +155,20 @@ export const RegisterPage = () => {
                 <Divider />
               </HStack>
 
-              <Button width="full" onClick={onSignInWithGoogle}>
-                <VisuallyHidden>Sign in with Google</VisuallyHidden>
-                <GoogleIcon boxSize={5} />
-              </Button>
+              <ButtonGroup width="full">
+                <Button width="full" onClick={onSignInWithGoogle}>
+                  <VisuallyHidden>Sign in with Google</VisuallyHidden>
+                  <FcGoogle size={20} />
+                </Button>
+                <Button
+                  width="full"
+                  colorScheme="facebook"
+                  onClick={onSignInWithFacebook}
+                >
+                  <VisuallyHidden>Sign in with Google</VisuallyHidden>
+                  <FaFacebook size={20} />
+                </Button>
+              </ButtonGroup>
             </Stack>
           </Stack>
         </Box>
