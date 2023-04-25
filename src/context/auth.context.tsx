@@ -1,9 +1,12 @@
 import {
+  browserLocalPersistence,
+  browserSessionPersistence,
   createUserWithEmailAndPassword,
   FacebookAuthProvider,
   GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -18,15 +21,15 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { LoginDto } from '../dtos';
+import { AuthDto } from '../dtos';
 import { auth } from '../firebase/firebase';
 
 type AuthState = {
   loading: boolean;
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
-  register: (dto: LoginDto) => Promise<UserCredential>;
-  login: (dto: LoginDto) => Promise<UserCredential>;
+  signUp: (dto: AuthDto) => Promise<UserCredential>;
+  signIn: (dto: AuthDto) => Promise<UserCredential>;
   signInWithGoogle: () => Promise<UserCredential>;
   signInWithFacebook: () => Promise<UserCredential>;
   logout: () => Promise<void>;
@@ -48,13 +51,30 @@ export const AuthProvider = ({ children }: Props) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const register = (dto: LoginDto) => {
-    return createUserWithEmailAndPassword(auth, dto.email, dto.password);
-  };
+  const rememberMe = useCallback((persist: boolean) => {
+    return setPersistence(
+      auth,
+      persist ? browserLocalPersistence : browserSessionPersistence
+    );
+  }, []);
 
-  const login = (dto: LoginDto) => {
-    return signInWithEmailAndPassword(auth, dto.email, dto.password);
-  };
+  const signUp = useCallback(
+    async (dto: AuthDto) => {
+      await rememberMe(dto.persist);
+
+      return createUserWithEmailAndPassword(auth, dto.email, dto.password);
+    },
+    [rememberMe]
+  );
+
+  const signIn = useCallback(
+    async (dto: AuthDto) => {
+      await rememberMe(dto.persist);
+
+      return signInWithEmailAndPassword(auth, dto.email, dto.password);
+    },
+    [rememberMe]
+  );
 
   const signInWithGoogle = useCallback(() => {
     return signInWithPopup(auth, googleProvider);
@@ -76,33 +96,36 @@ export const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      if (user) {
+        setCurrentUser(user);
+      }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
-
-  // const value = useMemo(() =>  return , []);
 
   const value = useMemo(
     () => ({
       loading,
       currentUser,
       setCurrentUser,
-      login,
-      register,
+      signIn,
+      signUp,
+      logout,
       signInWithGoogle,
       signInWithFacebook,
-      logout,
       resetPassword,
     }),
     [
-      currentUser,
       loading,
+      currentUser,
+      setCurrentUser,
+      signIn,
+      signUp,
       logout,
-      resetPassword,
       signInWithFacebook,
       signInWithGoogle,
+      resetPassword,
     ]
   );
 
