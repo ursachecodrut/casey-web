@@ -1,8 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Protected } from './components';
 import { Root } from './layouts';
-import { ErrorPage, LoginPage, RegisterPage } from './pages';
-import { ProfilePage } from './pages/profile.page';
+import { ErrorPage, LoginPage, ProfilePage, RegisterPage } from './pages';
 
 const router = createBrowserRouter([
   {
