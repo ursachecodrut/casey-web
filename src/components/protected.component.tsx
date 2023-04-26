@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { Container, Skeleton, Stack } from '@chakra-ui/react';
 import { useAuth } from '../hooks';
 
 interface Props {
@@ -10,7 +11,26 @@ export const Protected = ({ children }: Props) => {
   const { currentUser, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <Skeleton height="50px" />
+        <Container>
+          <Stack spacing={4} mt={10}>
+            <Skeleton height="30px" />
+            <Skeleton height="20px" />
+            <Skeleton height="30px" />
+            <Skeleton height="20px" />
+          </Stack>
+
+          <Stack spacing={6} mt={10} py={4}>
+            <Skeleton height="30px" />
+            <Skeleton height="20px" />
+            <Skeleton height="30px" />
+            <Skeleton height="20px" />
+          </Stack>
+        </Container>
+      </>
+    );
   }
 
   if (!currentUser) {
