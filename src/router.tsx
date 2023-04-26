@@ -6,24 +6,22 @@ import { ErrorPage, LoginPage, ProfilePage, RegisterPage } from './pages';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <Protected>
-        <Root />
-      </Protected>
-    ),
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-    ],
-  },
-  {
-    path: '/',
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        element: <Protected />,
+        children: [
+          {
+            path: '/profile',
+            element: <ProfilePage />,
+          },
+          {
+            path: '/test',
+            element: <div>test</div>,
+          },
+        ],
+      },
       {
         path: '/login',
         element: <LoginPage />,
@@ -34,6 +32,21 @@ const router = createBrowserRouter([
       },
     ],
   },
+  // {
+  //   path: '/',
+  //   element: <Root />,
+  //   errorElement: <ErrorPage />,
+  //   children: [
+  //     {
+  //       path: '/login',
+  //       element: <LoginPage />,
+  //     },
+  //     {
+  //       path: '/register',
+  //       element: <RegisterPage />,
+  //     },
+  //   ],
+  // },
 ]);
 
 export default router;

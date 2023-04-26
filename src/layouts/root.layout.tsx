@@ -4,11 +4,11 @@ import { Navbar } from '../components';
 
 export const Root = () => {
   return (
-    <>
+    <div>
       <Navbar />
       <Container>
         <Outlet />
       </Container>
-    </>
+    </div>
   );
 };

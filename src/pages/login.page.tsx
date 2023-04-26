@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Checkbox,
   Container,
   Divider,
   FormControl,
@@ -47,6 +46,7 @@ import {
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  // const { loading, currentUser } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -103,7 +103,7 @@ export const LoginPage = () => {
   const onSignInWithGoogle = async () => {
     try {
       await signInWithGoogle();
-      navigate('/profile');
+      navigate('/test');
     } catch (error) {
       if (error instanceof FirebaseError) {
         toast(handleFirebaseError(error));
@@ -190,14 +190,7 @@ export const LoginPage = () => {
               />
             </Stack>
 
-            <HStack justify="space-between">
-              <Checkbox
-                colorScheme="purple"
-                {...registerSignIn('persist')}
-                defaultChecked
-              >
-                Remember me
-              </Checkbox>
+            <HStack justify="end">
               <Button
                 variant="link"
                 colorScheme="purple"
