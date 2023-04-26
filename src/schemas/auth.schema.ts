@@ -8,7 +8,6 @@ export const AuthSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'Password must be at least 8 characters' }),
-  persist: z.boolean(),
 });
 
 export type AuthFormValues = z.infer<typeof AuthSchema>;

@@ -1,4 +1,6 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/jsx-no-constructed-context-values */
+import { createContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 
@@ -25,19 +27,23 @@ export const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-        setLoading(false);
-      }
+      setCurrentUser(user);
+      setLoading(false);
     });
 
     return unsubscribe;
-  }, [currentUser]);
+  }, []);
 
-  const value = useMemo(
-    () => ({ currentUser, loading, logout }),
-    [currentUser, loading]
-  );
+  // const value = useMemo(
+  //   () => ({ currentUser, loading, logout }),
+  //   [currentUser, loading]
+  // );
+
+  const value = {
+    currentUser,
+    loading,
+    logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

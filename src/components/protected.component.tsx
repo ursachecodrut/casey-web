@@ -1,41 +1,26 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { Container, Skeleton, Stack } from '@chakra-ui/react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../hooks';
 
-interface Props {
-  children: JSX.Element;
-}
-
-export const Protected = ({ children }: Props) => {
+export const Protected = () => {
   const location = useLocation();
   const { currentUser, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <>
-        <Skeleton height="50px" />
-        <Container>
-          <Stack spacing={4} mt={10}>
-            <Skeleton height="30px" />
-            <Skeleton height="20px" />
-            <Skeleton height="30px" />
-            <Skeleton height="20px" />
-          </Stack>
+  useEffect(() => {
+    // console.log(loading);
+  }, [loading]);
 
-          <Stack spacing={6} mt={10} py={4}>
-            <Skeleton height="30px" />
-            <Skeleton height="20px" />
-            <Skeleton height="30px" />
-            <Skeleton height="20px" />
-          </Stack>
-        </Container>
-      </>
-    );
+  useEffect(() => {
+    // console.log(currentUser);
+  }, [currentUser]);
+
+  if (loading) {
+    return <div>loading</div>;
   }
 
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} />;
   }
 
-  return children;
+  return <Outlet />;
 };

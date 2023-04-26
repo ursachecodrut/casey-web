@@ -128,16 +128,6 @@ export const RegisterPage = () => {
               />
             </Stack>
 
-            <HStack justify="space-between">
-              <Checkbox
-                colorScheme="purple"
-                {...register('persist')}
-                defaultChecked
-              >
-                Remember me
-              </Checkbox>
-            </HStack>
-
             <Stack spacing="6">
               <Button type="submit" variant="outline" isLoading={isSubmitting}>
                 Sign up
