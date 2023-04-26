@@ -17,7 +17,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../hooks';
 
@@ -43,6 +43,10 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    console.log('currentUser', currentUser);
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -82,7 +86,11 @@ export const Navbar = () => {
                 cursor="pointer"
                 minW={0}
               >
-                <Avatar size="sm" src={currentUser.photoURL ?? ''} />
+                <Avatar
+                  size="sm"
+                  src={currentUser.photoURL ?? ''}
+                  referrerPolicy="no-referrer"
+                />
               </MenuButton>
               <MenuList>
                 <MenuItem>Profile</MenuItem>

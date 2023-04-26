@@ -16,10 +16,13 @@ export const handleFirebaseError = (error: FirebaseError): UseToastOptions => {
       description = 'Invalid email';
       break;
     case 'auth/user-not-found':
-      description = 'Account not found';
+      description = 'Invalid credentials';
       break;
     case 'auth/account-exists-with-different-credential':
       description = 'Account already exists with different credential';
+      break;
+    case 'auth/wrong-password':
+      description = 'Invalid credentials';
       break;
     default:
       console.error(error);
