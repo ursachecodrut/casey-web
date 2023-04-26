@@ -16,10 +16,13 @@ import {
   Stack,
   useColorModeValue,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../hooks';
+import { handleFirebaseError } from '../firebase/firebase.errors';
 
 const Links = ['Recipes', 'Shopping'];
 
@@ -43,10 +46,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  useEffect(() => {
-    console.log('currentUser', currentUser);
-  }, [currentUser]);
+  const toast = useToast();
 
   const handleLogout = async () => {
     try {
@@ -54,7 +54,11 @@ export const Navbar = () => {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error(error);
+      if (error instanceof FirebaseError) {
+        toast(handleFirebaseError(error));
+      } else {
+        throw error;
+      }
     }
   };
 
