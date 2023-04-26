@@ -23,13 +23,12 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import { FirebaseError } from 'firebase/app';
 import { PasswordField } from '../components';
-import { useAuth } from '../hooks';
 import { handleFirebaseError } from '../firebase/firebase.errors';
 import { AuthFormValues, AuthSchema } from '../schemas';
+import { signInWithFacebook, signInWithGoogle, signUp } from '../api/auth.api';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle, signInWithFacebook } = useAuth();
   const {
     handleSubmit,
     register,
@@ -42,13 +41,11 @@ export const RegisterPage = () => {
   const onSignUp: SubmitHandler<AuthFormValues> = async (data) => {
     await signUp(data);
     navigate('/profile');
-    localStorage.setItem('isAuthenticated', 'true');
   };
 
   const onSignInWithGoogle = async () => {
     try {
       await signInWithGoogle();
-      localStorage.setItem('isAuthenticated', 'true');
       navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -62,7 +59,6 @@ export const RegisterPage = () => {
   const onSignInWithFacebook = async () => {
     try {
       await signInWithFacebook();
-      localStorage.setItem('isAuthenticated', 'true');
       navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {

@@ -31,7 +31,6 @@ import { FirebaseError } from 'firebase/app';
 import { FaFacebook } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { PasswordField } from '../components';
-import { useAuth } from '../hooks';
 import { handleFirebaseError } from '../firebase/firebase.errors';
 import {
   AuthFormValues,
@@ -39,13 +38,17 @@ import {
   EmailFormValues,
   EmailSchema,
 } from '../schemas';
+import {
+  resetPassword,
+  signIn,
+  signInWithFacebook,
+  signInWithGoogle,
+} from '../api/auth.api';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { signIn, signInWithGoogle, signInWithFacebook, resetPassword } =
-    useAuth();
   const {
     handleSubmit: handleSubmitSignIn,
     register: registerSignIn,
@@ -67,7 +70,6 @@ export const LoginPage = () => {
   const onSignIn: SubmitHandler<AuthFormValues> = async (data) => {
     try {
       await signIn(data);
-      localStorage.setItem('isAuthenticated', 'true');
       navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -101,7 +103,6 @@ export const LoginPage = () => {
   const onSignInWithGoogle = async () => {
     try {
       await signInWithGoogle();
-      localStorage.setItem('isAuthenticated', 'true');
       navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -115,7 +116,6 @@ export const LoginPage = () => {
   const onSignInWithFacebook = async () => {
     try {
       await signInWithFacebook();
-      localStorage.setItem('isAuthenticated', 'true');
       navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {
