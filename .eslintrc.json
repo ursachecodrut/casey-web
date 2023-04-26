@@ -34,7 +34,7 @@
     "no-console": [
       "error",
       {
-        "allow": ["error", "log"]
+        "allow": ["error"]
       }
     ]
   }
