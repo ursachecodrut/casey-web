@@ -31,7 +31,7 @@ export const ProfilePage = () => {
         <Image
           borderRadius="full"
           boxSize={{ base: '150px', md: '200px' }}
-          src={currentUser?.photoURL?.replace('s96-c', 's400-c')}
+          src={currentUser.photoURL?.replace('s96-c', 's400-c')}
           alt="Profile Pic"
         />
 
