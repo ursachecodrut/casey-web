@@ -29,6 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FirebaseError } from 'firebase/app';
 import { FaFacebook } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
+import { useState } from 'react';
 import { PasswordField } from '../components';
 import { handleFirebaseError } from '../firebase/firebase.errors';
 import {
@@ -46,7 +47,6 @@ import {
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  // const { loading, currentUser } = useAuth();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -66,6 +66,8 @@ export const LoginPage = () => {
   } = useForm<EmailFormValues>({
     resolver: zodResolver(EmailSchema),
   });
+
+  const [loading, setLoading] = useState(false);
 
   const onSignIn: SubmitHandler<AuthFormValues> = async (data) => {
     try {
@@ -102,8 +104,10 @@ export const LoginPage = () => {
 
   const onSignInWithGoogle = async () => {
     try {
+      setLoading(true);
       await signInWithGoogle();
-      navigate('/test');
+      setLoading(false);
+      navigate('/profile');
     } catch (error) {
       if (error instanceof FirebaseError) {
         toast(handleFirebaseError(error));
@@ -125,6 +129,10 @@ export const LoginPage = () => {
       }
     }
   };
+
+  if (loading) {
+    return <div>loading</div>;
+  }
 
   return (
     <Container
