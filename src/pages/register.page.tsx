@@ -13,21 +13,22 @@ import {
   Stack,
   Text,
   VisuallyHidden,
-  useToast,
 } from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
-import { FirebaseError } from 'firebase/app';
 import { PasswordField } from '../components';
-import { handleFirebaseError } from '../firebase/firebase.errors';
 import { AuthFormValues, AuthSchema } from '../schemas';
-import { signInWithFacebook, signInWithGoogle, signUp } from '../api/auth.api';
+import { useFacebookAuth, useGoogleAuth, useSignUp } from '../api/auth.api';
 
 export const RegisterPage = () => {
-  const navigate = useNavigate();
+  const { mutateAsync: mutateSignUp } = useSignUp();
+  const { mutate: mutateGoogle, isLoading: isLoadingGoogle } = useGoogleAuth();
+  const { mutate: mutateFacebook, isLoading: isLoadingFacebook } =
+    useFacebookAuth();
+
   const {
     handleSubmit,
     register,
@@ -35,36 +36,12 @@ export const RegisterPage = () => {
   } = useForm<AuthFormValues>({
     resolver: zodResolver(AuthSchema),
   });
-  const toast = useToast();
 
   const onSignUp: SubmitHandler<AuthFormValues> = async (data) => {
-    await signUp(data);
-    navigate('/profile');
-  };
-
-  const onSignInWithGoogle = async () => {
     try {
-      await signInWithGoogle();
-      navigate('/profile');
+      await mutateSignUp(data);
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
-    }
-  };
-
-  const onSignInWithFacebook = async () => {
-    try {
-      await signInWithFacebook();
-      navigate('/profile');
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
+      console.error(error);
     }
   };
 
@@ -141,14 +118,19 @@ export const RegisterPage = () => {
               </HStack>
 
               <ButtonGroup width="full">
-                <Button width="full" onClick={onSignInWithGoogle}>
+                <Button
+                  width="full"
+                  onClick={() => mutateGoogle()}
+                  isLoading={isLoadingGoogle}
+                >
                   <VisuallyHidden>Sign in with Google</VisuallyHidden>
                   <FcGoogle size={20} />
                 </Button>
                 <Button
                   width="full"
                   colorScheme="facebook"
-                  onClick={onSignInWithFacebook}
+                  onClick={() => mutateFacebook()}
+                  isLoading={isLoadingFacebook}
                 >
                   <VisuallyHidden>Sign in with Google</VisuallyHidden>
                   <FaFacebook size={20} />

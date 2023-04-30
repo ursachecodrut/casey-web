@@ -21,17 +21,13 @@ import {
   Text,
   VisuallyHidden,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FirebaseError } from 'firebase/app';
 import { FaFacebook } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { useState } from 'react';
 import { PasswordField } from '../components';
-import { handleFirebaseError } from '../firebase/firebase.errors';
 import {
   AuthFormValues,
   AuthSchema,
@@ -39,16 +35,20 @@ import {
   EmailSchema,
 } from '../schemas';
 import {
-  resetPassword,
-  signIn,
-  signInWithFacebook,
-  signInWithGoogle,
+  useFacebookAuth,
+  useGoogleAuth,
+  useResetPassword,
+  useSignIn,
 } from '../api/auth.api';
 
 export const LoginPage = () => {
-  const navigate = useNavigate();
-  const toast = useToast();
+  const { mutateAsync: mutateSignIn } = useSignIn();
+  const { mutateAsync: resetPassword } = useResetPassword();
+  const { mutate: mutateGoogle, isLoading: isLoadingGoogle } = useGoogleAuth();
+  const { mutate: mutateFacebook, isLoading: isLoadingFacebook } =
+    useFacebookAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const {
     handleSubmit: handleSubmitSignIn,
     register: registerSignIn,
@@ -67,72 +67,21 @@ export const LoginPage = () => {
     resolver: zodResolver(EmailSchema),
   });
 
-  const [loading, setLoading] = useState(false);
-
   const onSignIn: SubmitHandler<AuthFormValues> = async (data) => {
     try {
-      await signIn(data);
-      navigate('/profile');
+      await mutateSignIn(data);
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
+      console.error(error);
     }
   };
 
   const onPasswordReset: SubmitHandler<EmailFormValues> = async (data) => {
     try {
       await resetPassword(data.email);
-      onClose();
-      toast({
-        title: 'Password reset email sent',
-        description: 'Check your email for further instructions',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
     } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
+      console.error(error);
     }
   };
-
-  const onSignInWithGoogle = async () => {
-    try {
-      setLoading(true);
-      await signInWithGoogle();
-      setLoading(false);
-      navigate('/profile');
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
-    }
-  };
-
-  const onSignInWithFacebook = async () => {
-    try {
-      await signInWithFacebook();
-      navigate('/profile');
-    } catch (error) {
-      if (error instanceof FirebaseError) {
-        toast(handleFirebaseError(error));
-      } else {
-        throw error;
-      }
-    }
-  };
-
-  if (loading) {
-    return <div>loading</div>;
-  }
 
   return (
     <Container
@@ -227,14 +176,19 @@ export const LoginPage = () => {
               </HStack>
 
               <ButtonGroup width="full">
-                <Button width="full" onClick={onSignInWithGoogle}>
+                <Button
+                  width="full"
+                  onClick={() => mutateGoogle()}
+                  isLoading={isLoadingGoogle}
+                >
                   <VisuallyHidden>Sign in with Google</VisuallyHidden>
                   <FcGoogle size={20} />
                 </Button>
                 <Button
                   width="full"
                   colorScheme="facebook"
-                  onClick={onSignInWithFacebook}
+                  onClick={() => mutateFacebook()}
+                  isLoading={isLoadingFacebook}
                 >
                   <VisuallyHidden>Sign in with Google</VisuallyHidden>
                   <FaFacebook size={20} />
