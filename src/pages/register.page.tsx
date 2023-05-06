@@ -7,21 +7,21 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Heading,
+  HStack,
   Input,
   Stack,
   Text,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FcGoogle } from 'react-icons/fc';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { FaFacebook } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import { Link } from 'react-router-dom';
+import { useFacebookAuth, useGoogleAuth, useSignUp } from '../api/auth.api';
 import { PasswordField } from '../components';
 import { AuthFormValues, AuthSchema } from '../schemas';
-import { useFacebookAuth, useGoogleAuth, useSignUp } from '../api/auth.api';
 
 export const RegisterPage = () => {
   const { mutateAsync: mutateSignUp } = useSignUp();

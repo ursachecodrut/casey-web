@@ -7,8 +7,8 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
   Heading,
+  HStack,
   Input,
   Modal,
   ModalBody,
@@ -19,14 +19,20 @@ import {
   ModalOverlay,
   Stack,
   Text,
-  VisuallyHidden,
   useDisclosure,
+  VisuallyHidden,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { FaFacebook } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
+import { Link } from 'react-router-dom';
+import {
+  useFacebookAuth,
+  useGoogleAuth,
+  useResetPassword,
+  useSignIn,
+} from '../api/auth.api';
 import { PasswordField } from '../components';
 import {
   AuthFormValues,
@@ -34,12 +40,6 @@ import {
   EmailFormValues,
   EmailSchema,
 } from '../schemas';
-import {
-  useFacebookAuth,
-  useGoogleAuth,
-  useResetPassword,
-  useSignIn,
-} from '../api/auth.api';
 
 export const LoginPage = () => {
   const { mutateAsync: mutateSignIn } = useSignIn();
