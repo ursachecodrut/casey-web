@@ -7,7 +7,7 @@ import {
   Flex,
   HStack,
   IconButton,
-  Link,
+  Link as ChakraLink,
   Menu,
   MenuButton,
   MenuDivider,
@@ -18,29 +18,57 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../hooks';
 import { handleFirebaseError } from '../firebase/firebase.errors';
 
-const Links = ['Recipes', 'Shopping'];
+type Link = {
+  name: string;
+  path: string;
+  protected: boolean;
+};
 
-const NavLink = ({ children }: { children: ReactNode }) => (
-  <Link
-    as={RouterLink}
-    px={2}
-    py={1}
-    rounded="md"
-    _hover={{
-      textDecoration: 'none',
-      bg: useColorModeValue('gray.200', 'gray.700'),
-    }}
-    to="/"
-  >
-    {children}
-  </Link>
-);
+const Links: Link[] = [
+  {
+    name: 'Recipes',
+    path: '/recipes',
+    protected: false,
+  },
+  {
+    name: 'Shopping',
+    path: '/shopping',
+    protected: true,
+  },
+  {
+    name: 'Add Recipe',
+    path: '/add-recipe',
+    protected: true,
+  },
+];
+
+const NavLink = ({ link }: { link: Link }) => {
+  const { currentUser } = useAuth();
+  const colorModeValue = useColorModeValue('gray.200', 'gray.700');
+
+  if (link.protected && !currentUser) return null;
+
+  return (
+    <ChakraLink
+      as={RouterLink}
+      px={2}
+      py={1}
+      rounded="md"
+      _hover={{
+        textDecoration: 'none',
+        bg: colorModeValue,
+      }}
+      to={link.path}
+    >
+      {link.name}
+    </ChakraLink>
+  );
+};
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -76,7 +104,7 @@ export const Navbar = () => {
           <Box>Casey</Box>
           <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.name} link={link} />
             ))}
           </HStack>
         </HStack>
@@ -121,7 +149,7 @@ export const Navbar = () => {
         <Box pb={4} display={{ md: 'none' }}>
           <Stack as="nav" spacing={4}>
             {Links.map((link) => (
-              <NavLink key={link}>{link}</NavLink>
+              <NavLink key={link.name} link={link} />
             ))}
           </Stack>
         </Box>

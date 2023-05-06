@@ -1,7 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Protected } from './components';
 import { Root } from './layouts';
-import { ErrorPage, LoginPage, ProfilePage, RegisterPage } from './pages';
+import {
+  AddRecipePage,
+  ErrorPage,
+  LoginPage,
+  ProfilePage,
+  RecipePage,
+  RecipesListPage,
+  RegisterPage,
+} from './pages';
 
 const router = createBrowserRouter([
   {
@@ -17,10 +25,18 @@ const router = createBrowserRouter([
             element: <ProfilePage />,
           },
           {
-            path: '/test',
-            element: <div>test</div>,
+            path: '/add-recipe',
+            element: <AddRecipePage />,
           },
         ],
+      },
+      {
+        path: '/recipes',
+        element: <RecipesListPage />,
+      },
+      {
+        path: '/recipes/:id',
+        element: <RecipePage />,
       },
       {
         path: '/login',

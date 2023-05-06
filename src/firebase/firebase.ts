@@ -5,10 +5,13 @@ import {
   GoogleAuthProvider,
   getAuth,
 } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import firebaseOptions from '../config/firebase.config';
 
 // Initialize Firebase
 const app = initializeApp(firebaseOptions);
+
+export const db = getFirestore(app);
 export const auth = getAuth(app);
 
 export const googleProvider = new GoogleAuthProvider();
