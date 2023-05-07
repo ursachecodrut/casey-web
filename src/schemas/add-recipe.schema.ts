@@ -9,6 +9,7 @@ export const RecipeSchema = z.object({
     .string()
     .min(10, { message: 'Description must be at least 10 characters long' })
     .max(500, { message: 'Description must be at most 500 characters long' }),
+  files: z.instanceof(FileList),
   ingredients: z
     .array(
       z.object({
@@ -26,18 +27,14 @@ export const RecipeSchema = z.object({
     .nonempty({
       message: 'You must have at least one ingredient',
     }),
-  steps: z
-    .array(
-      z.object({
-        name: z.string().min(3, {
-          message: 'Step must be at least 3 characters long',
-        }),
-        description: z.string().min(10, {
-          message: 'Step description must be at least 10 characters long',
-        }),
-      })
-    )
-    .nonempty({ message: 'You must have at least one step' }),
+  // steps: z.string().array().nonempty(),
+  steps: z.array(
+    z.object({
+      description: z.string().min(1, {
+        message: 'Description is required',
+      }),
+    })
+  ),
 });
 
 export type RecipeFormValues = z.infer<typeof RecipeSchema>;
