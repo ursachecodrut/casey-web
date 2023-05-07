@@ -18,19 +18,20 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { postRecipe } from '../api/recipes.api';
 import { useAuth } from '../hooks';
 import { RecipeFormValues, RecipeSchema } from '../schemas';
 
 export const AddRecipePage = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RecipeFormValues>({
     resolver: zodResolver(RecipeSchema),
   });
@@ -53,7 +54,7 @@ export const AddRecipePage = () => {
     control,
   });
 
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isLoading } = useMutation({
     mutationKey: ['addRecipe'],
     mutationFn: ({
       data,
@@ -62,6 +63,10 @@ export const AddRecipePage = () => {
       data: RecipeFormValues;
       userId: string;
     }) => postRecipe(data, userId),
+    onSuccess: () => {
+      console.log('Recipe added successfully');
+      navigate('/recipes');
+    },
     onError: (error) => {
       console.error(error);
     },
@@ -77,10 +82,6 @@ export const AddRecipePage = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    console.log(errors);
-  }, [errors]);
 
   return (
     <Container
@@ -230,8 +231,16 @@ export const AddRecipePage = () => {
               Add Step
             </Button>
 
-            <Button type="submit" isLoading={isSubmitting} colorScheme="blue">
+            <Button type="submit" isLoading={isLoading} colorScheme="blue">
               Post Recipe
+            </Button>
+
+            <Button
+              type="button"
+              colorScheme="blue"
+              onClick={() => navigate('/recipes')}
+            >
+              just redirect
             </Button>
           </Stack>
         </Box>

@@ -27,7 +27,6 @@ export const RecipeSchema = z.object({
     .nonempty({
       message: 'You must have at least one ingredient',
     }),
-  // steps: z.string().array().nonempty(),
   steps: z.array(
     z.object({
       description: z.string().min(1, {
