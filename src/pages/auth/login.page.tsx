@@ -32,14 +32,14 @@ import {
   useGoogleAuth,
   useResetPassword,
   useSignIn,
-} from '../api/auth.api';
-import { PasswordField } from '../components';
+} from '../../api';
+import { PasswordField } from '../../components';
 import {
   AuthFormValues,
   AuthSchema,
   EmailFormValues,
   EmailSchema,
-} from '../schemas';
+} from '../../schemas';
 
 export const LoginPage = () => {
   const { mutateAsync: mutateSignIn } = useSignIn();

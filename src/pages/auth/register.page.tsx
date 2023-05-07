@@ -19,9 +19,9 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { FaFacebook } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { Link } from 'react-router-dom';
-import { useFacebookAuth, useGoogleAuth, useSignUp } from '../api/auth.api';
-import { PasswordField } from '../components';
-import { AuthFormValues, AuthSchema } from '../schemas';
+import { useFacebookAuth, useGoogleAuth, useSignUp } from '../../api';
+import { PasswordField } from '../../components';
+import { AuthFormValues, AuthSchema } from '../../schemas';
 
 export const RegisterPage = () => {
   const { mutateAsync: mutateSignUp } = useSignUp();

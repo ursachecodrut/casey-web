@@ -7,7 +7,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { useAuth } from '../hooks';
+import { useAuth } from '../../hooks';
 
 export const ProfilePage = () => {
   const { currentUser } = useAuth();

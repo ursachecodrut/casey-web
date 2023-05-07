@@ -20,9 +20,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { postRecipe } from '../api/recipes.api';
-import { useAuth } from '../hooks';
-import { RecipeFormValues, RecipeSchema } from '../schemas';
+import { postRecipe } from '../../api';
+import { useAuth } from '../../hooks';
+import { RecipeFormValues, RecipeSchema } from '../../schemas';
 
 export const AddRecipePage = () => {
   const navigate = useNavigate();
@@ -55,8 +55,8 @@ export const AddRecipePage = () => {
   });
 
   const { mutateAsync, isLoading } = useMutation({
-    mutationKey: ['addRecipe'],
-    mutationFn: ({
+    mutationKey: ['recipes'],
+    mutationFn: async ({
       data,
       userId,
     }: {
