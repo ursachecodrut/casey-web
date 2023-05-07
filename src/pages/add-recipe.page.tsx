@@ -1,7 +1,8 @@
+/* eslint-disable react/no-children-prop */
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
-  CloseButton,
   Container,
   FormControl,
   FormErrorMessage,
@@ -9,17 +10,22 @@ import {
   Heading,
   HStack,
   Input,
+  InputGroup,
+  InputLeftElement,
   Stack,
   Text,
   Textarea,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { postRecipe } from '../api/recipes.api';
+import { useAuth } from '../hooks';
 import { RecipeFormValues, RecipeSchema } from '../schemas';
 
 export const AddRecipePage = () => {
+  const { currentUser } = useAuth();
   const {
     register,
     control,
@@ -34,8 +40,8 @@ export const AddRecipePage = () => {
     append: appendStep,
     remove: removeStep,
   } = useFieldArray<RecipeFormValues>({
-    name: 'steps',
     control,
+    name: 'steps',
   });
 
   const {
@@ -49,7 +55,13 @@ export const AddRecipePage = () => {
 
   const { mutateAsync } = useMutation({
     mutationKey: ['addRecipe'],
-    mutationFn: (recipe: RecipeFormValues) => postRecipe(recipe),
+    mutationFn: ({
+      data,
+      userId,
+    }: {
+      data: RecipeFormValues;
+      userId: string;
+    }) => postRecipe(data, userId),
     onError: (error) => {
       console.error(error);
     },
@@ -57,11 +69,18 @@ export const AddRecipePage = () => {
 
   const onSubmit = async (data: RecipeFormValues) => {
     try {
-      await mutateAsync(data);
+      await mutateAsync({
+        data,
+        userId: currentUser?.uid as string,
+      });
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    console.log(errors);
+  }, [errors]);
 
   return (
     <Container
@@ -91,6 +110,21 @@ export const AddRecipePage = () => {
                 {...register('description')}
               />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={Boolean(errors.files)}>
+              <FormLabel fontSize="lg">Recipe Image</FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none" children={<AddIcon />} />
+                <Input
+                  type="file"
+                  multiple={false}
+                  accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
+                  placeholder="Upload an image for your recipe"
+                  {...register('files')}
+                />
+              </InputGroup>
+              <FormErrorMessage>{errors.files?.message}</FormErrorMessage>
             </FormControl>
 
             <Text fontSize="lg">Recipe Ingredients</Text>
@@ -134,10 +168,13 @@ export const AddRecipePage = () => {
                         {errors.ingredients?.[index]?.unit?.message}
                       </FormErrorMessage>
                     </FormControl>
-                    <CloseButton
+
+                    <Button
+                      colorScheme="red"
                       onClick={() => removeIngredient(index)}
-                      type="button"
-                    />
+                    >
+                      <DeleteIcon />
+                    </Button>
                   </HStack>
                 </FormControl>
               ))}
@@ -159,38 +196,25 @@ export const AddRecipePage = () => {
               {stepFields.map((step, index) => {
                 return (
                   <Stack key={step.id} spacing="6">
-                    <FormControl
-                      isInvalid={Boolean(errors.steps?.[index]?.name)}
-                    >
-                      <FormLabel>Step {index + 1}</FormLabel>
-                      <Textarea
-                        placeholder={`Enter step ${index + 1} name...`}
-                        {...register(`steps.${index}.name` as const)}
-                      />
-                      <FormErrorMessage>
-                        {errors.steps?.[index]?.name?.message}
-                      </FormErrorMessage>
-                    </FormControl>
-                    <FormControl
-                      isInvalid={Boolean(errors.steps?.[index]?.description)}
-                    >
-                      <FormLabel>Step {index + 1} description</FormLabel>
-                      <Textarea
-                        placeholder={`Enter step ${index + 1} description...`}
-                        {...register(`steps.${index}.description` as const)}
-                      />
-                      <FormErrorMessage>
-                        {errors.steps?.[index]?.description?.message}
-                      </FormErrorMessage>
-                    </FormControl>
+                    <HStack>
+                      <FormControl isInvalid={Boolean(errors.steps?.[index])}>
+                        <FormLabel>Step {index + 1} description</FormLabel>
+                        <Textarea
+                          placeholder={`Enter step ${index + 1} description...`}
+                          {...register(`steps.${index}.description` as const)}
+                        />
+                        <FormErrorMessage>
+                          {errors.steps?.[index]?.message}
+                        </FormErrorMessage>
+                      </FormControl>
 
-                    <Button
-                      type="button"
-                      colorScheme="red"
-                      onClick={() => removeStep(index)}
-                    >
-                      Remove Step
-                    </Button>
+                      <Button
+                        colorScheme="red"
+                        onClick={() => removeStep(index)}
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </HStack>
                   </Stack>
                 );
               })}
@@ -200,10 +224,7 @@ export const AddRecipePage = () => {
               variant="solid"
               colorScheme="purple"
               onClick={() => {
-                appendStep({
-                  name: '',
-                  description: '',
-                });
+                appendStep({ description: '' });
               }}
             >
               Add Step
