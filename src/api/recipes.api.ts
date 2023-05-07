@@ -1,4 +1,4 @@
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { RecipeDto } from '../dtos';
 import { db, storage } from '../firebase/firebase';
@@ -28,4 +28,12 @@ export const postRecipe = async (data: RecipeFormValues, userId: string) => {
       await setDoc(doc(db, 'recipes', recipe.title), newRecipe);
     }
   );
+};
+
+export const fetchRecipes = async () => {
+  const querySnapshot = await getDocs(collection(db, 'recipes'));
+  const recipes = querySnapshot.docs.map(
+    (recipeDoc) => recipeDoc.data() as RecipeDto
+  );
+  return recipes;
 };

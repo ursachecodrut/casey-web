@@ -6,7 +6,7 @@ export const Root = () => {
   return (
     <div>
       <Navbar />
-      <Container>
+      <Container maxW="container.xl">
         <Outlet />
       </Container>
     </div>
