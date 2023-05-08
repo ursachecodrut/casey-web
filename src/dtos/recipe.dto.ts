@@ -1,7 +1,9 @@
 export interface RecipeDto {
+  id: string;
   userId: string;
   title: string;
   description: string;
+  time: string;
   imageUrl: string;
   ingredients: IngredientDto[];
   steps: StepDto[];

@@ -1,48 +1,51 @@
 import {
+  AspectRatio,
   Button,
-  ButtonGroup,
   Card,
   CardBody,
-  CardFooter,
-  Divider,
+  HStack,
   Heading,
+  Image,
   Stack,
   Text,
-  Image,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import { RecipeDto } from '../../dtos';
-
-// type RecipeProps = RecipeDto;
 
 export const RecipeCard = ({ recipe }: { recipe: RecipeDto }) => {
   const { title, description, imageUrl } = recipe;
+  const navigate = useNavigate();
+
   return (
     <Card maxW="sm" variant="elevated">
       <CardBody>
-        <Image
-          src={imageUrl}
-          alt="Green double couch with wooden legs"
-          borderRadius="lg"
-        />
+        <AspectRatio>
+          <Image
+            src={imageUrl}
+            alt="Recipe Image"
+            borderRadius="lg"
+            objectFit="cover"
+          />
+        </AspectRatio>
         <Stack mt="6" spacing="3">
           <Heading size="md">{title}</Heading>
           <Text>{description.slice(0, 100)}...</Text>
-          <Text color="blue.600" fontSize="2xl">
-            $450
-          </Text>
+          <HStack justify="space-between">
+            <Text fontSize="md" fontWeight="bold">
+              Total time: {recipe.time}
+            </Text>
+            <Text fontSize="md" fontWeight="bold">
+              Rating: 4.5 / 5
+            </Text>
+          </HStack>
+          <Button
+            colorScheme="purple"
+            onClick={() => navigate(`/recipes/${recipe.id}`)}
+          >
+            View
+          </Button>
         </Stack>
       </CardBody>
-      <Divider />
-      <CardFooter>
-        <ButtonGroup spacing="2">
-          <Button variant="solid" colorScheme="blue">
-            Buy now
-          </Button>
-          <Button variant="ghost" colorScheme="blue">
-            Add to cart
-          </Button>
-        </ButtonGroup>
-      </CardFooter>
     </Card>
   );
 };

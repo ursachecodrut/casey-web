@@ -7,25 +7,25 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Heading,
   HStack,
+  Heading,
   Input,
   InputGroup,
   InputLeftElement,
   Stack,
   Text,
   Textarea,
+  useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
 import { postRecipe } from '../../api';
 import { useAuth } from '../../hooks';
 import { RecipeFormValues, RecipeSchema } from '../../schemas';
 
 export const AddRecipePage = () => {
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const {
     register,
@@ -54,6 +54,8 @@ export const AddRecipePage = () => {
     control,
   });
 
+  const toast = useToast();
+
   const { mutateAsync, isLoading } = useMutation({
     mutationKey: ['recipes'],
     mutationFn: async ({
@@ -64,8 +66,13 @@ export const AddRecipePage = () => {
       userId: string;
     }) => postRecipe(data, userId),
     onSuccess: () => {
-      console.log('Recipe added successfully');
-      navigate('/recipes');
+      toast({
+        title: 'Recipe created successfully',
+        description: 'Go check it out in the recipes page!',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     },
     onError: (error) => {
       console.error(error);
@@ -82,6 +89,14 @@ export const AddRecipePage = () => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    console.log(errors);
+  }, [errors]);
+
+  useEffect(() => {
+    console.log('control', control);
+  }, [control]);
 
   return (
     <Container
@@ -113,6 +128,17 @@ export const AddRecipePage = () => {
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>
             </FormControl>
 
+            <FormControl>
+              <HStack justify="center">
+                <Text fontSize="lg">Time: </Text>
+                <Input
+                  type="text"
+                  placeholder="Enter the estimated time for your recipe"
+                  {...register('time')}
+                />
+              </HStack>
+            </FormControl>
+
             <FormControl isInvalid={Boolean(errors.files)}>
               <FormLabel fontSize="lg">Recipe Image</FormLabel>
               <InputGroup>
@@ -120,7 +146,7 @@ export const AddRecipePage = () => {
                 <Input
                   type="file"
                   multiple={false}
-                  accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
+                  accept="image/*"
                   placeholder="Upload an image for your recipe"
                   {...register('files')}
                 />
@@ -129,57 +155,67 @@ export const AddRecipePage = () => {
             </FormControl>
 
             <Text fontSize="lg">Recipe Ingredients</Text>
-            <Stack spacing="6">
-              {ingredientFields.map((ingredient, index) => (
-                <FormControl key={ingredient.id}>
-                  <HStack>
-                    <FormControl
-                      isInvalid={Boolean(errors.ingredients?.[index]?.name)}
-                    >
-                      <Input
-                        placeholder="Ing..."
-                        {...register(`ingredients.${index}.name` as const)}
-                      />
-                      <FormErrorMessage>
-                        {errors.ingredients?.[index]?.name?.message}
-                      </FormErrorMessage>
-                    </FormControl>
-                    <FormControl
-                      isInvalid={Boolean(errors.ingredients?.[index]?.quantity)}
-                    >
-                      <Input
-                        placeholder="Qty..."
-                        type="number"
-                        {...register(`ingredients.${index}.quantity` as const, {
-                          valueAsNumber: true,
-                        })}
-                      />
-                      <FormErrorMessage>
-                        {errors.ingredients?.[index]?.quantity?.message}
-                      </FormErrorMessage>
-                    </FormControl>
-                    <FormControl
-                      isInvalid={Boolean(errors.ingredients?.[index]?.unit)}
-                    >
-                      <Input
-                        placeholder="Unit..."
-                        {...register(`ingredients.${index}.unit` as const)}
-                      />
-                      <FormErrorMessage>
-                        {errors.ingredients?.[index]?.unit?.message}
-                      </FormErrorMessage>
-                    </FormControl>
+            <FormControl isInvalid={Boolean(errors.ingredients)}>
+              <Stack spacing="6">
+                {ingredientFields.map((ingredient, index) => (
+                  <FormControl key={ingredient.id}>
+                    <HStack>
+                      <FormControl
+                        isInvalid={Boolean(errors.ingredients?.[index]?.name)}
+                      >
+                        <Input
+                          placeholder="Ing..."
+                          {...register(`ingredients.${index}.name` as const)}
+                        />
+                        <FormErrorMessage>
+                          {errors.ingredients?.[index]?.name?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                      <FormControl
+                        isInvalid={Boolean(
+                          errors.ingredients?.[index]?.quantity
+                        )}
+                      >
+                        <Input
+                          placeholder="Qty..."
+                          type="number"
+                          {...register(
+                            `ingredients.${index}.quantity` as const,
+                            {
+                              valueAsNumber: true,
+                            }
+                          )}
+                        />
+                        <FormErrorMessage>
+                          {errors.ingredients?.[index]?.quantity?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+                      <FormControl
+                        isInvalid={Boolean(errors.ingredients?.[index]?.unit)}
+                      >
+                        <Input
+                          placeholder="Unit..."
+                          {...register(`ingredients.${index}.unit` as const)}
+                        />
+                        <FormErrorMessage>
+                          {errors.ingredients?.[index]?.unit?.message}
+                        </FormErrorMessage>
+                      </FormControl>
 
-                    <Button
-                      colorScheme="red"
-                      onClick={() => removeIngredient(index)}
-                    >
-                      <DeleteIcon />
-                    </Button>
-                  </HStack>
-                </FormControl>
-              ))}
-            </Stack>
+                      <Button
+                        colorScheme="red"
+                        onClick={() => removeIngredient(index)}
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </HStack>
+                  </FormControl>
+                ))}
+                <FormErrorMessage>
+                  {errors.ingredients?.message}
+                </FormErrorMessage>
+              </Stack>
+            </FormControl>
             <Button
               onClick={() =>
                 appendIngredient({
@@ -193,11 +229,11 @@ export const AddRecipePage = () => {
             </Button>
 
             <Text fontSize="lg">Recipe Steps</Text>
-            <Stack spacing="12">
-              {stepFields.map((step, index) => {
-                return (
-                  <Stack key={step.id} spacing="6">
-                    <HStack>
+            <FormControl isInvalid={Boolean(errors.steps)}>
+              <Stack spacing="8">
+                {stepFields.map((step, index) => {
+                  return (
+                    <HStack key={step.id}>
                       <FormControl isInvalid={Boolean(errors.steps?.[index])}>
                         <FormLabel>Step {index + 1} description</FormLabel>
                         <Textarea
@@ -216,14 +252,14 @@ export const AddRecipePage = () => {
                         <DeleteIcon />
                       </Button>
                     </HStack>
-                  </Stack>
-                );
-              })}
-            </Stack>
+                  );
+                })}
+                <FormErrorMessage>{errors.steps?.message}</FormErrorMessage>
+              </Stack>
+            </FormControl>
             <Button
               type="button"
               variant="solid"
-              colorScheme="purple"
               onClick={() => {
                 appendStep({ description: '' });
               }}
@@ -231,16 +267,8 @@ export const AddRecipePage = () => {
               Add Step
             </Button>
 
-            <Button type="submit" isLoading={isLoading} colorScheme="blue">
+            <Button type="submit" colorScheme="blue" isLoading={isLoading}>
               Post Recipe
-            </Button>
-
-            <Button
-              type="button"
-              colorScheme="blue"
-              onClick={() => navigate('/recipes')}
-            >
-              just redirect
             </Button>
           </Stack>
         </Box>
