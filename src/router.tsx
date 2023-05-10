@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/return-await */
-import { createBrowserRouter } from 'react-router-dom';
 import { QueryClient } from '@tanstack/react-query';
+import { createBrowserRouter } from 'react-router-dom';
 import { Protected } from './components';
 import { Root } from './layouts';
 import {
