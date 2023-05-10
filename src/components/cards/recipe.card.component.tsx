@@ -35,7 +35,7 @@ export const RecipeCard = ({ recipe }: { recipe: RecipeDto }) => {
               Total time: {recipe.time}
             </Text>
             <Text fontSize="md" fontWeight="bold">
-              Rating: 4.5 / 5
+              Rating: 0 / 5
             </Text>
           </HStack>
           <Button
