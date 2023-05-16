@@ -19,7 +19,6 @@ import {
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { postRecipe } from '../../api';
 import { useAuth } from '../../hooks';
@@ -89,14 +88,6 @@ export const AddRecipePage = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    console.log(errors);
-  }, [errors]);
-
-  useEffect(() => {
-    console.log('control', control);
-  }, [control]);
 
   return (
     <Container

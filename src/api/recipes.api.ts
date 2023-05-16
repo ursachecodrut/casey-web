@@ -1,4 +1,5 @@
 import {
+  Timestamp,
   collection,
   doc,
   getDoc,
@@ -23,7 +24,7 @@ export const postRecipe = async (data: RecipeFormValues, userId: string) => {
     'state_changed',
     () => {},
     (error) => {
-      console.log(error);
+      console.error(error);
     },
     async () => {
       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -80,6 +81,7 @@ export const addReview = async (dto: AddReviewDto) => {
     ...review,
     id: uuidv4(),
     userId,
+    updatedAt: Timestamp.fromDate(new Date()),
   };
 
   recipe.reviews.push(newReview);

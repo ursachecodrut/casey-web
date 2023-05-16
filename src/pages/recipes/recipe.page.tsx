@@ -1,5 +1,6 @@
 import {
   AspectRatio,
+  Box,
   Container,
   HStack,
   Heading,
@@ -8,10 +9,29 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { useParams } from 'react-router-dom';
 import { fetchRecipe } from '../../api';
 import { ReviewComponent } from '../../components/review.component';
-import { RecipeDto } from '../../dtos';
+import { RecipeDto, ReviewDto } from '../../dtos';
+
+export const ReviewCard = ({ review }: { review: ReviewDto }) => {
+  const { title, description } = review;
+
+  return (
+    <Box boxShadow="base" p="4">
+      <Stack>
+        <HStack justifyContent="space-between">
+          <Heading size="md">{title}</Heading>
+          <Text fontSize="lg" colorScheme="gray">
+            {format(review.updatedAt.toDate(), 'dd/MM/yyyy')}
+          </Text>
+        </HStack>
+        <Text fontSize="lg">{description}</Text>
+      </Stack>
+    </Box>
+  );
+};
 
 export const RecipePage = () => {
   const { id: recipeId } = useParams();
@@ -79,10 +99,7 @@ export const RecipePage = () => {
         ) : (
           <Stack spacing="8">
             {recipe.reviews.map((review) => (
-              <Stack key={review.id} spacing="1">
-                <Heading size="md">{review.title}</Heading>
-                <Text fontSize="lg">{review.description}</Text>
-              </Stack>
+              <ReviewCard key={review.id} review={review} />
             ))}
           </Stack>
         )}

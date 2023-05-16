@@ -9,6 +9,7 @@ import {
   Stack,
   Textarea,
   VStack,
+  useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
@@ -25,6 +26,7 @@ interface Props {
 
 export const ReviewComponent = ({ recipeId }: Props) => {
   const { currentUser } = useAuth();
+  const toast = useToast();
   const {
     register,
     handleSubmit,
@@ -38,6 +40,20 @@ export const ReviewComponent = ({ recipeId }: Props) => {
     mutationFn: (dto: AddReviewDto) => addReview(dto),
     onSuccess: () => {
       queryClient.invalidateQueries(['recipes', recipeId]);
+      toast({
+        title: 'Recipe loaded',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Something went wrong',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     },
   });
 
