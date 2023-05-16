@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface RecipeDto {
   id: string;
   userId: string;
@@ -23,6 +25,7 @@ export interface StepDto {
 export interface ReviewDto {
   id: string;
   userId: string;
+  updatedAt: Timestamp;
   title: string;
   description: string;
 }
