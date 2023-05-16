@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/return-await */
-import { QueryClient } from '@tanstack/react-query';
 import { createBrowserRouter } from 'react-router-dom';
 import { Protected } from './components';
 import { Root } from './layouts';
@@ -12,8 +11,6 @@ import {
   RecipesListPage,
   RegisterPage,
 } from './pages';
-
-export const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {
