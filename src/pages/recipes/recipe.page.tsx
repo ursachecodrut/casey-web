@@ -4,26 +4,29 @@ import {
   HStack,
   Heading,
   Image,
-  ListItem,
-  OrderedList,
   Stack,
   Text,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { fetchRecipe } from '../../api';
+import { ReviewComponent } from '../../components/review.component';
 import { RecipeDto } from '../../dtos';
 
 export const RecipePage = () => {
-  const { id } = useParams();
+  const { id: recipeId } = useParams();
 
   const { isLoading, data: recipe } = useQuery<RecipeDto, Error>({
-    queryKey: ['recipe'],
-    queryFn: () => fetchRecipe(id!),
+    queryKey: ['recipes', recipeId],
+    queryFn: () => fetchRecipe(recipeId),
   });
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!recipe) {
+    return <div>Recipe not found</div>;
   }
 
   return (
@@ -33,11 +36,11 @@ export const RecipePage = () => {
       px={{ base: '0', sm: '8' }}
     >
       <Stack spacing="12">
-        <Heading>{recipe?.title}</Heading>
+        <Heading>{recipe.title}</Heading>
 
-        <AspectRatio>
+        <AspectRatio maxW="400px">
           <Image
-            src={recipe?.imageUrl}
+            src={recipe.imageUrl}
             alt="Recipe Image"
             borderRadius="lg"
             objectFit="cover"
@@ -45,20 +48,18 @@ export const RecipePage = () => {
         </AspectRatio>
 
         <Heading size="md">Description</Heading>
-        <Text>{recipe?.description}</Text>
+        <Text>{recipe.description}</Text>
 
         <Heading size="md">Ingredients</Heading>
-        <OrderedList>
-          {recipe?.ingredients.map((ingredient) => (
-            <ListItem key={ingredient.name}>
-              <HStack>
-                <Text fontSize="lg">{ingredient.name}</Text>
-                <Text fontSize="lg">{ingredient.quantity}</Text>
-                <Text fontSize="lg">{ingredient.unit}</Text>
-              </HStack>
-            </ListItem>
+        <Stack spacing="3">
+          {recipe.ingredients.map((ingredient) => (
+            <HStack key={ingredient.name}>
+              <Text fontSize="lg">{ingredient.name}</Text>
+              <Text fontSize="lg">{ingredient.quantity}</Text>
+              <Text fontSize="lg">{ingredient.unit}</Text>
+            </HStack>
           ))}
-        </OrderedList>
+        </Stack>
 
         <Heading size="md">Steps</Heading>
         <Stack spacing="3">
@@ -68,6 +69,23 @@ export const RecipePage = () => {
             </Text>
           ))}
         </Stack>
+
+        <ReviewComponent recipeId={recipe.id} />
+
+        <Heading size="md">Reviews</Heading>
+
+        {recipe.reviews.length === 0 ? (
+          <Text>No reviews yet</Text>
+        ) : (
+          <Stack spacing="8">
+            {recipe.reviews.map((review) => (
+              <Stack key={review.id} spacing="1">
+                <Heading size="md">{review.title}</Heading>
+                <Text fontSize="lg">{review.description}</Text>
+              </Stack>
+            ))}
+          </Stack>
+        )}
       </Stack>
     </Container>
   );

@@ -15,6 +15,10 @@ export const RecipesListPage = () => {
     return <div>Loading...</div>;
   }
 
+  if (error) {
+    return <div>Something went wrong</div>;
+  }
+
   return (
     <Container
       maxW="container.2xl"

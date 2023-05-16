@@ -7,6 +7,7 @@ export interface RecipeDto {
   imageUrl: string;
   ingredients: IngredientDto[];
   steps: StepDto[];
+  reviews: ReviewDto[];
 }
 
 export interface IngredientDto {
@@ -16,5 +17,12 @@ export interface IngredientDto {
 }
 
 export interface StepDto {
+  description: string;
+}
+
+export interface ReviewDto {
+  id: string;
+  userId: string;
+  title: string;
   description: string;
 }
