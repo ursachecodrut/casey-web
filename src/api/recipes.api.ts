@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
-import { AddReviewDto, RecipeDto, ReviewDto } from '../dtos';
+import { AddReviewDto, DeleteReviewDto, RecipeDto, ReviewDto } from '../dtos';
 import { db, storage } from '../firebase/firebase';
 import { RecipeFormValues } from '../schemas';
 
@@ -88,5 +88,24 @@ export const addReview = async (dto: AddReviewDto) => {
 
   await updateDoc(recipeRef, {
     reviews: recipe.reviews,
+  });
+};
+
+export const deleteReview = async (dto: DeleteReviewDto) => {
+  const { recipeId, reviewId } = dto;
+  const recipeRef = doc(db, 'recipes', recipeId);
+
+  const recipeSnap = await getDoc(recipeRef);
+
+  if (!recipeSnap.exists()) {
+    throw new Error('Recipe does not exist!');
+  }
+
+  const recipe = recipeSnap.data() as RecipeDto;
+
+  const newReviews = recipe.reviews.filter((review) => review.id !== reviewId);
+
+  await updateDoc(recipeRef, {
+    reviews: newReviews,
   });
 };

@@ -36,6 +36,7 @@
       {
         "allow": ["error", "log", "warn"]
       }
-    ]
+    ],
+    "react/require-default-props": "off"
   }
 }
