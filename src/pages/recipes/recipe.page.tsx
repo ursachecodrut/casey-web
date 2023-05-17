@@ -1,6 +1,5 @@
 import {
   AspectRatio,
-  Box,
   Container,
   HStack,
   Heading,
@@ -9,32 +8,17 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
 import { useParams } from 'react-router-dom';
 import { fetchRecipe } from '../../api';
+import { ReviewCard } from '../../components/cards/review.card.component';
 import { ReviewComponent } from '../../components/review.component';
 import { RecipeDto, ReviewDto } from '../../dtos';
-
-export const ReviewCard = ({ review }: { review: ReviewDto }) => {
-  const { title, description } = review;
-
-  return (
-    <Box boxShadow="base" p="4">
-      <Stack>
-        <HStack justifyContent="space-between">
-          <Heading size="md">{title}</Heading>
-          <Text fontSize="lg" colorScheme="gray">
-            {format(review.updatedAt.toDate(), 'dd/MM/yyyy')}
-          </Text>
-        </HStack>
-        <Text fontSize="lg">{description}</Text>
-      </Stack>
-    </Box>
-  );
-};
+import { useAuth } from '../../hooks';
+import { partition } from '../../utils';
 
 export const RecipePage = () => {
   const { id: recipeId } = useParams();
+  const { currentUser } = useAuth();
 
   const { isLoading, data: recipe } = useQuery<RecipeDto, Error>({
     queryKey: ['recipes', recipeId],
@@ -48,6 +32,11 @@ export const RecipePage = () => {
   if (!recipe) {
     return <div>Recipe not found</div>;
   }
+
+  const [personalReivews, odersReviews] = partition(
+    recipe.reviews,
+    (r: ReviewDto) => r.userId === currentUser?.uid
+  );
 
   return (
     <Container
@@ -90,18 +79,39 @@ export const RecipePage = () => {
           ))}
         </Stack>
 
-        <ReviewComponent recipeId={recipe.id} />
+        {currentUser && <ReviewComponent recipeId={recipe.id} />}
 
         <Heading size="md">Reviews</Heading>
 
         {recipe.reviews.length === 0 ? (
           <Text>No reviews yet</Text>
         ) : (
-          <Stack spacing="8">
-            {recipe.reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </Stack>
+          <>
+            <Stack spacing="8">
+              {personalReivews
+                .sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis())
+                .map((review) => (
+                  <ReviewCard
+                    key={review.id}
+                    review={review}
+                    recipeId={recipe.id}
+                    currentUserId={currentUser?.uid}
+                  />
+                ))}
+            </Stack>
+            <Stack spacing="8">
+              {odersReviews
+                .sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis())
+                .map((review) => (
+                  <ReviewCard
+                    key={review.id}
+                    review={review}
+                    recipeId={recipe.id}
+                    currentUserId=""
+                  />
+                ))}
+            </Stack>
+          </>
         )}
       </Stack>
     </Container>

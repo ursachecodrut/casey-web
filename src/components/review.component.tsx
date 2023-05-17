@@ -12,12 +12,11 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { addReview } from '../api';
 import { AddReviewDto } from '../dtos';
 import { useAuth } from '../hooks';
-import { queryClient } from '../queryClient';
 import { ReviewSchema, ReviewSchemaValues } from '../schemas';
 
 interface Props {
@@ -27,6 +26,7 @@ interface Props {
 export const ReviewComponent = ({ recipeId }: Props) => {
   const { currentUser } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -36,12 +36,12 @@ export const ReviewComponent = ({ recipeId }: Props) => {
   });
 
   const { mutateAsync: mutateAddReview } = useMutation({
-    mutationKey: ['recipes', recipeId],
+    mutationKey: ['addReview', recipeId],
     mutationFn: (dto: AddReviewDto) => addReview(dto),
     onSuccess: () => {
       queryClient.invalidateQueries(['recipes', recipeId]);
       toast({
-        title: 'Recipe loaded',
+        title: 'Review added',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -49,7 +49,7 @@ export const ReviewComponent = ({ recipeId }: Props) => {
     },
     onError: () => {
       toast({
-        title: 'Something went wrong',
+        title: 'Could not add review',
         status: 'error',
         duration: 3000,
         isClosable: true,
