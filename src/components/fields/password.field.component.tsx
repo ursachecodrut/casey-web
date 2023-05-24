@@ -17,12 +17,11 @@ interface Props extends InputProps {
   registerReturn?: UseFormRegisterReturn<'password'>;
 }
 
-const defaultProps: Props = {
-  error: undefined,
-  registerReturn: undefined,
-};
-
-export const PasswordField = ({ error, registerReturn, ...rest }: Props) => {
+export const PasswordField = ({
+  error = undefined,
+  registerReturn = undefined,
+  ...rest
+}: Props) => {
   const { isOpen, onToggle } = useDisclosure();
 
   const onClickReveal = () => {
@@ -59,4 +58,3 @@ export const PasswordField = ({ error, registerReturn, ...rest }: Props) => {
 };
 
 PasswordField.displayName = 'PasswordField';
-PasswordField.defaultProps = defaultProps;
