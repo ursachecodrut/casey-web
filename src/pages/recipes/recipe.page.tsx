@@ -1,15 +1,18 @@
 import {
   AspectRatio,
+  Button,
   Container,
   HStack,
   Heading,
   Image,
   Stack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { fetchRecipe } from '../../api';
+import { addIngredientsToShoppingList } from '../../api/shopping.api';
 import { ReviewCard } from '../../components/cards/review.card.component';
 import { ReviewComponent } from '../../components/review.component';
 import { RecipeDto, ReviewDto } from '../../dtos';
@@ -19,10 +22,31 @@ import { partition } from '../../utils';
 export const RecipePage = () => {
   const { id: recipeId } = useParams();
   const { currentUser } = useAuth();
+  const toast = useToast();
 
   const { isLoading, data: recipe } = useQuery<RecipeDto, Error>({
     queryKey: ['recipes', recipeId],
     queryFn: () => fetchRecipe(recipeId),
+  });
+
+  const { mutate, isLoading: isLoadingAddIngredients } = useMutation({
+    mutationFn: () =>
+      addIngredientsToShoppingList(recipe?.ingredients, currentUser?.uid),
+    onSuccess: () => {
+      toast({
+        title: 'Ingredients added to shopping list',
+        status: 'success',
+        isClosable: true,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Something went wrong',
+        description: error.message,
+        status: 'error',
+        isClosable: true,
+      });
+    },
   });
 
   if (isLoading) {
@@ -77,6 +101,19 @@ export const RecipePage = () => {
               {step.description}
             </Text>
           ))}
+        </Stack>
+
+        <Stack spacing="3">
+          <Heading size="md">Want to cook this recipe?</Heading>
+          <HStack>
+            <Button
+              colorScheme="purple"
+              isLoading={isLoadingAddIngredients}
+              onClick={() => mutate()}
+            >
+              Add to shopping list
+            </Button>
+          </HStack>
         </Stack>
 
         {currentUser && <ReviewComponent recipeId={recipe.id} />}

@@ -114,6 +114,7 @@ export const AddRecipePage = () => {
               <Textarea
                 size="md"
                 placeholder="Enter a main description for your recipe"
+                rows={10}
                 {...register('description')}
               />
               <FormErrorMessage>{errors.description?.message}</FormErrorMessage>

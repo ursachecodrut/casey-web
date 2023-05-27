@@ -56,6 +56,7 @@ export const LoginPage = () => {
   } = useForm<AuthFormValues>({
     resolver: zodResolver(AuthSchema),
   });
+
   const {
     handleSubmit: handleSubmitPasswordReset,
     register: registerPasswordReset,

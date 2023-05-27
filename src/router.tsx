@@ -11,6 +11,7 @@ import {
   RecipesListPage,
   RegisterPage,
 } from './pages';
+import { ShoppingListPage } from './pages/shopping/shopping-list.page';
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
           {
             path: '/add-recipe',
             element: <AddRecipePage />,
+          },
+          {
+            path: '/shopping',
+            element: <ShoppingListPage />,
           },
         ],
       },

@@ -1,19 +1,73 @@
+import { useToast } from '@chakra-ui/react';
+import { useMutation } from '@tanstack/react-query';
+import { FirebaseError } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth';
-import { useMutation } from '@tanstack/react-query';
+import { Timestamp, doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { FirebaseError } from 'firebase/app';
-import { useToast } from '@chakra-ui/react';
 import { AuthDto } from '../dtos';
+import {
+  auth,
+  db,
+  facebookProvider,
+  googleProvider,
+} from '../firebase/firebase';
 import { handleFirebaseError } from '../firebase/firebase.errors';
-import { auth, facebookProvider, googleProvider } from '../firebase/firebase';
+
+const createShopping = async (uid: string) => {
+  await setDoc(doc(db, 'shopping', uid), {
+    current: {
+      ingredients: [],
+      updatedAt: Timestamp.now(),
+    },
+    history: [],
+  });
+};
 
 const signUp = async (dto: AuthDto) => {
-  return createUserWithEmailAndPassword(auth, dto.email, dto.password);
+  const credentials = await createUserWithEmailAndPassword(
+    auth,
+    dto.email,
+    dto.password
+  );
+
+  const uid = credentials.user?.uid;
+
+  if (!uid) {
+    throw new Error('Error while creating user');
+  }
+
+  await setDoc(doc(db, 'users', uid), {
+    uid,
+    email: auth.currentUser?.email,
+    displayName: auth.currentUser?.displayName,
+    photoURL: auth.currentUser?.photoURL,
+  });
+
+  await createShopping(uid);
+};
+
+const googleSignIn = async () => {
+  const credentials = await signInWithPopup(auth, googleProvider);
+
+  const uid = credentials.user?.uid;
+
+  if (!uid) {
+    throw new Error('Error while creating user');
+  }
+
+  await setDoc(doc(db, 'users', uid), {
+    uid,
+    email: auth.currentUser?.email,
+    displayName: auth.currentUser?.displayName,
+    photoURL: auth.currentUser?.photoURL,
+  });
+
+  await createShopping(uid);
 };
 
 const signIn = async (dto: AuthDto) => {
@@ -93,7 +147,7 @@ export const useGoogleAuth = () => {
 
   return useMutation({
     mutationKey: ['googleAuth'],
-    mutationFn: () => signInWithPopup(auth, googleProvider),
+    mutationFn: googleSignIn,
     onSuccess: () => {
       navigate('/profile');
     },
