@@ -11,16 +11,88 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { fetchShopping } from '../../api';
-import { ShoppingDto } from '../../dtos/shopping-lists.dto';
+import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { fetchShopping, updateShoppingList } from '../../api';
+import { ShoppingDto, ShoppingListItemDto } from '../../dtos';
 import { useAuth } from '../../hooks';
 import {
   CurrentShoppingListSchema,
   CurrentShoppingListValues,
 } from '../../schemas';
+
+interface ShoppingListFormProps {
+  items: ShoppingListItemDto[];
+  onSubmit: SubmitHandler<CurrentShoppingListValues>;
+}
+
+const ShoppingListForm = ({ items, onSubmit }: ShoppingListFormProps) => {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<CurrentShoppingListValues>({
+    resolver: zodResolver(CurrentShoppingListSchema),
+    defaultValues: {
+      items,
+    },
+  });
+
+  const {
+    fields: itemsFields,
+    append: appendItem,
+    remove: removeItem,
+  } = useFieldArray<CurrentShoppingListValues>({
+    control,
+    name: 'items',
+  });
+
+  return (
+    <Stack spacing="2" as="form" onSubmit={handleSubmit(onSubmit)}>
+      {itemsFields.map((item, index) => (
+        <FormControl key={JSON.stringify(item)}>
+          <HStack>
+            <Checkbox {...register(`items.${index}.checked`)} />
+            <FormControl isInvalid={Boolean(errors.items?.[index]?.name)}>
+              <Input {...register(`items.${index}.name` as const)} />
+            </FormControl>
+            <FormControl isInvalid={Boolean(errors.items?.[index]?.quantity)}>
+              <Input
+                type="number"
+                {...register(`items.${index}.quantity` as const, {
+                  valueAsNumber: true,
+                })}
+              />
+            </FormControl>
+            <FormControl isInvalid={Boolean(errors.items?.[index]?.unit)}>
+              <Input {...register(`items.${index}.unit` as const)} />
+            </FormControl>
+            <Button onClick={() => removeItem(index)}>
+              <DeleteIcon />
+            </Button>
+          </HStack>
+        </FormControl>
+      ))}
+      <Button
+        onClick={() => {
+          appendItem({
+            checked: false,
+            name: '',
+            quantity: 1,
+            unit: '',
+          });
+        }}
+      >
+        Add item
+      </Button>
+      <Button type="submit" isLoading={isSubmitting}>
+        Save
+      </Button>
+    </Stack>
+  );
+};
 
 export const ShoppingListPage = () => {
   const { currentUser } = useAuth();
@@ -34,28 +106,22 @@ export const ShoppingListPage = () => {
     queryFn: () => fetchShopping(currentUser?.uid),
   });
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CurrentShoppingListValues>({
-    resolver: zodResolver(CurrentShoppingListSchema),
+  const { mutateAsync } = useMutation({
+    mutationKey: ['saveShoppingList', currentUser, currentUser?.uid],
+    mutationFn: (items: ShoppingListItemDto[]) =>
+      updateShoppingList(currentUser?.uid, items),
+    onSuccess: () => {
+      console.log('success');
+    },
   });
 
-  const {
-    fields: itemsFields,
-    append: appendItem,
-    remove: removeItem,
-  } = useFieldArray<CurrentShoppingListValues>({
-    control,
-    name: 'items',
-  });
-
-  // const { mutateAsync } = useMutation({
-  //   mutationKey: ['shopping'],
-  //   mutationFn: () => {},
-  // );
+  const onSubmit: SubmitHandler<CurrentShoppingListValues> = async (data) => {
+    try {
+      await mutateAsync(data.items);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -67,11 +133,7 @@ export const ShoppingListPage = () => {
 
   return (
     <Container py="4" maxW="lg">
-      <Stack
-        spacing="4"
-        as="form"
-        onSubmit={handleSubmit((data) => console.log(data))}
-      >
+      <Stack spacing="4">
         <Heading size="lg">Your shopping list</Heading>
 
         <Text>Current Shopping List</Text>
@@ -79,81 +141,10 @@ export const ShoppingListPage = () => {
           {format(shopping.current.updatedAt.toDate(), 'dd/MM/yyyy HH:mm')}
         </Text>
 
-        <Stack spacing="2">
-          {shopping.current.ingredients.map((item, index) => (
-            <FormControl key={JSON.stringify(item)}>
-              <HStack>
-                <Checkbox {...register(`items.${index}.checked`)} />
-                <FormControl isInvalid={Boolean(errors.items?.[index]?.name)}>
-                  <Input
-                    value={item.name}
-                    {...register(`items.${index}.name` as const)}
-                  />
-                </FormControl>
-                <FormControl
-                  isInvalid={Boolean(errors.items?.[index]?.quantity)}
-                >
-                  <Input
-                    value={item.quantity}
-                    {...register(`items.${index}.quantity` as const)}
-                  />
-                </FormControl>
-                <FormControl isInvalid={Boolean(errors.items?.[index]?.unit)}>
-                  <Input
-                    value={item.unit}
-                    {...register(`items.${index}.unit` as const)}
-                  />
-                </FormControl>
-                <Button onClick={() => removeItem(index)}>
-                  <DeleteIcon />
-                </Button>
-              </HStack>
-            </FormControl>
-          ))}
-          {itemsFields.map((item, index) => (
-            <FormControl key={JSON.stringify(item)}>
-              <HStack>
-                <Checkbox {...register(`items.${index}.checked`)} />
-                <FormControl isInvalid={Boolean(errors.items?.[index]?.name)}>
-                  <Input
-                    value={item.name}
-                    {...register(`items.${index}.name` as const)}
-                  />
-                </FormControl>
-                <FormControl
-                  isInvalid={Boolean(errors.items?.[index]?.quantity)}
-                >
-                  <Input
-                    value={item.quantity}
-                    {...register(`items.${index}.quantity` as const)}
-                  />
-                </FormControl>
-                <FormControl isInvalid={Boolean(errors.items?.[index]?.unit)}>
-                  <Input
-                    value={item.unit}
-                    {...register(`items.${index}.unit` as const)}
-                  />
-                </FormControl>
-                <Button onClick={() => removeItem(index)}>
-                  <DeleteIcon />
-                </Button>
-              </HStack>
-            </FormControl>
-          ))}
-          <Button
-            onClick={() => {
-              appendItem({
-                checked: false,
-                name: '',
-                quantity: '',
-                unit: '',
-              });
-            }}
-          >
-            Add item
-          </Button>
-          <Button type="submit">Save</Button>
-        </Stack>
+        <ShoppingListForm
+          items={shopping.current.ingredients}
+          onSubmit={onSubmit}
+        />
       </Stack>
     </Container>
   );

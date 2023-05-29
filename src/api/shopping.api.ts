@@ -2,7 +2,11 @@ import { Timestamp, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { v4 as uuid } from 'uuid';
 import { IngredientDto } from '../dtos';
 import { db } from '../firebase/firebase';
-import { ShoppingDto, ShoppingListDto } from '../dtos/shopping-lists.dto';
+import {
+  ShoppingDto,
+  ShoppingListDto,
+  ShoppingListItemDto,
+} from '../dtos/shopping-lists.dto';
 
 export const addIngredientsToShoppingList = async (
   ingredients: IngredientDto[] | undefined,
@@ -30,6 +34,32 @@ export const addIngredientsToShoppingList = async (
 
   const newCurrent: ShoppingListDto = {
     ingredients: [...shopping.current.ingredients, ...newIngredients],
+    updatedAt: Timestamp.fromDate(new Date()),
+  };
+
+  await updateDoc(shoppingRef, {
+    current: newCurrent,
+  });
+};
+
+export const updateShoppingList = async (
+  userId: string | undefined,
+  items: ShoppingListItemDto[]
+) => {
+  if (!userId) {
+    throw new Error('No user id');
+  }
+
+  const shoppingRef = doc(db, 'shopping', userId);
+
+  const shoppingSnap = await getDoc(shoppingRef);
+
+  if (!shoppingSnap.exists()) {
+    throw new Error('No such shopping list!');
+  }
+
+  const newCurrent: ShoppingListDto = {
+    ingredients: items,
     updatedAt: Timestamp.fromDate(new Date()),
   };
 

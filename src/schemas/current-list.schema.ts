@@ -5,7 +5,7 @@ export const CurrentShoppingListSchema = z.object({
     z.object({
       checked: z.boolean(),
       name: z.string(),
-      quantity: z.string(),
+      quantity: z.number(),
       unit: z.string(),
     })
   ),
