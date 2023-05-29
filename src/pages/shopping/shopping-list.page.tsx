@@ -9,35 +9,55 @@ import {
   Input,
   Stack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  UseMutateAsyncFunction,
+  useMutation,
+  useQuery,
+} from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
-import { fetchShopping, updateShoppingList } from '../../api';
-import { ShoppingDto, ShoppingListItemDto } from '../../dtos';
+import { FirebaseError } from 'firebase/app';
+import { Timestamp } from 'firebase/firestore';
+import { addListToHistory, fetchShopping, updateShoppingList } from '../../api';
+import { ShoppingDto, ShoppingListDto, ShoppingListItemDto } from '../../dtos';
 import { useAuth } from '../../hooks';
 import {
   CurrentShoppingListSchema,
   CurrentShoppingListValues,
 } from '../../schemas';
+import { handleFirebaseError } from '../../firebase/firebase.errors';
 
 interface ShoppingListFormProps {
-  items: ShoppingListItemDto[];
-  onSubmit: SubmitHandler<CurrentShoppingListValues>;
+  userId: string | undefined;
+  shopping: ShoppingDto;
+  saveCurrentList: UseMutateAsyncFunction<
+    void,
+    unknown,
+    ShoppingListItemDto[],
+    unknown
+  >;
 }
 
-const ShoppingListForm = ({ items, onSubmit }: ShoppingListFormProps) => {
+const ShoppingListForm = ({
+  userId,
+  shopping,
+  saveCurrentList,
+}: ShoppingListFormProps) => {
+  const toast = useToast();
+
   const {
     register,
     control,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CurrentShoppingListValues>({
     resolver: zodResolver(CurrentShoppingListSchema),
-    defaultValues: {
-      items,
-    },
+    defaultValues: { items: shopping.current.ingredients },
   });
 
   const {
@@ -48,6 +68,60 @@ const ShoppingListForm = ({ items, onSubmit }: ShoppingListFormProps) => {
     control,
     name: 'items',
   });
+
+  const onSubmit: SubmitHandler<CurrentShoppingListValues> = async (data) => {
+    try {
+      await saveCurrentList(data.items);
+      toast({
+        title: 'Shopping list saved',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        handleFirebaseError(error);
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const { mutateAsync, isLoading } = useMutation({
+    mutationKey: ['endShopping', userId],
+    mutationFn: (currentList: ShoppingListDto) =>
+      addListToHistory(userId, currentList),
+    onSuccess: () => {
+      setValue('items', []);
+      toast({
+        title: 'Shopping list closed',
+        description: 'Shopping list has been moved to history',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const handleEndShopping = async () => {
+    try {
+      const currentList = getValues('items');
+      await mutateAsync({
+        ingredients: currentList,
+        updatedAt: Timestamp.now(),
+      });
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        handleFirebaseError(error);
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const handleClearList = () => {
+    setValue('items', []);
+  };
 
   return (
     <Stack spacing="2" as="form" onSubmit={handleSubmit(onSubmit)}>
@@ -87,8 +161,19 @@ const ShoppingListForm = ({ items, onSubmit }: ShoppingListFormProps) => {
       >
         Add item
       </Button>
-      <Button type="submit" isLoading={isSubmitting}>
+      <Button type="submit" colorScheme="green" isLoading={isSubmitting}>
         Save
+      </Button>
+      <Button type="button" colorScheme="purple" onClick={handleClearList}>
+        Clear
+      </Button>
+      <Button
+        type="button"
+        colorScheme="red"
+        onClick={handleEndShopping}
+        isLoading={isLoading}
+      >
+        End Shopping
       </Button>
     </Stack>
   );
@@ -102,26 +187,15 @@ export const ShoppingListPage = () => {
     isLoading,
     isError,
   } = useQuery<ShoppingDto, Error>({
-    queryKey: ['shopping', currentUser, currentUser?.uid],
+    queryKey: ['shopping', currentUser?.uid],
     queryFn: () => fetchShopping(currentUser?.uid),
   });
 
   const { mutateAsync } = useMutation({
-    mutationKey: ['saveShoppingList', currentUser, currentUser?.uid],
+    mutationKey: ['saveShoppingList', currentUser?.uid],
     mutationFn: (items: ShoppingListItemDto[]) =>
       updateShoppingList(currentUser?.uid, items),
-    onSuccess: () => {
-      console.log('success');
-    },
   });
-
-  const onSubmit: SubmitHandler<CurrentShoppingListValues> = async (data) => {
-    try {
-      await mutateAsync(data.items);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -142,8 +216,9 @@ export const ShoppingListPage = () => {
         </Text>
 
         <ShoppingListForm
-          items={shopping.current.ingredients}
-          onSubmit={onSubmit}
+          userId={currentUser?.uid}
+          shopping={shopping}
+          saveCurrentList={mutateAsync}
         />
       </Stack>
     </Container>

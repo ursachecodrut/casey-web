@@ -45,6 +45,11 @@ const Links: Link[] = [
     path: '/add-recipe',
     protected: true,
   },
+  {
+    name: 'History',
+    path: '/history',
+    protected: true,
+  },
 ];
 
 const NavLink = ({ link }: { link: Link }) => {

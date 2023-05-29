@@ -5,13 +5,14 @@ import { Root } from './layouts';
 import {
   AddRecipePage,
   ErrorPage,
+  HistoryListsPage,
   LoginPage,
   ProfilePage,
   RecipePage,
   RecipesListPage,
   RegisterPage,
+  ShoppingListPage,
 } from './pages';
-import { ShoppingListPage } from './pages/shopping/shopping-list.page';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
           {
             path: '/shopping',
             element: <ShoppingListPage />,
+          },
+          {
+            path: '/history',
+            element: <HistoryListsPage />,
           },
         ],
       },

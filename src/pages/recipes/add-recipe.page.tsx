@@ -230,6 +230,7 @@ export const AddRecipePage = () => {
                         <FormLabel>Step {index + 1} description</FormLabel>
                         <Textarea
                           placeholder={`Enter step ${index + 1} description...`}
+                          rows={10}
                           {...register(`steps.${index}.description` as const)}
                         />
                         <FormErrorMessage>
