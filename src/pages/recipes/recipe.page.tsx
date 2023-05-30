@@ -5,6 +5,8 @@ import {
   HStack,
   Heading,
   Image,
+  Skeleton,
+  SkeletonText,
   Stack,
   Text,
   useToast,
@@ -50,7 +52,25 @@ export const RecipePage = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container
+        maxW="container.lg"
+        py={{ base: '12', md: '24' }}
+        px={{ base: '0', sm: '8' }}
+      >
+        <Stack spacing="12">
+          <SkeletonText noOfLines={1} skeletonHeight="10" width="200px" />
+
+          <Skeleton width="400px" height="300px" />
+
+          <SkeletonText noOfLines={1} skeletonHeight="5" width="200px" />
+          <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
+
+          <SkeletonText noOfLines={1} skeletonHeight="5" width="200px" />
+          <SkeletonText mt="4" noOfLines={10} spacing="2" skeletonHeight="2" />
+        </Stack>
+      </Container>
+    );
   }
 
   if (!recipe) {

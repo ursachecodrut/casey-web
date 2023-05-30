@@ -1,4 +1,11 @@
-import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Container,
+  Heading,
+  SkeletonText,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ShoppingDto } from '../../dtos';
@@ -18,7 +25,26 @@ export const HistoryListsPage = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container py="4">
+        <SkeletonText
+          my="5"
+          noOfLines={1}
+          skeletonHeight="8"
+          spacing="4"
+          width="200px"
+        />
+
+        <Stack spacing={4}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <Box key={i} shadow="base" p="4">
+              <SkeletonText noOfLines={6} spacing="4" />
+            </Box>
+          ))}
+        </Stack>
+      </Container>
+    );
   }
 
   if (isError) {
@@ -26,7 +52,7 @@ export const HistoryListsPage = () => {
   }
 
   return (
-    <Container py="4">
+    <Container py="4" maxW="lg">
       <Heading>History Lists</Heading>
 
       {shopping.history.length === 0 && (

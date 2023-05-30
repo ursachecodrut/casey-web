@@ -17,7 +17,7 @@ export const RecipeCard = ({ recipe }: { recipe: RecipeDto }) => {
   const navigate = useNavigate();
 
   return (
-    <Card maxW="sm" variant="elevated">
+    <Card maxW="sm" variant="filled">
       <CardBody>
         <AspectRatio>
           <Image

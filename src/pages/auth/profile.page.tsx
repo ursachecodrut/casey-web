@@ -1,5 +1,6 @@
 import {
   Container,
+  HStack,
   Heading,
   Image,
   SkeletonCircle,
@@ -14,9 +15,15 @@ export const ProfilePage = () => {
 
   if (!currentUser) {
     return (
-      <Container>
-        <SkeletonCircle size="10" />
-        <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
+      <Container
+        maxW="lg"
+        py={{ base: '12', md: '24' }}
+        px={{ base: '0', sm: '8' }}
+      >
+        <Stack spacing="4">
+          <SkeletonCircle size="20" />
+          <SkeletonText mt="4" noOfLines={10} spacing="4" skeletonHeight="3" />
+        </Stack>
       </Container>
     );
   }
@@ -27,7 +34,7 @@ export const ProfilePage = () => {
       py={{ base: '12', md: '24' }}
       px={{ base: '0', sm: '8' }}
     >
-      <Stack>
+      <HStack justify="space-between">
         <Image
           borderRadius="full"
           boxSize={{ base: '150px', md: '200px' }}
@@ -41,9 +48,10 @@ export const ProfilePage = () => {
               {currentUser.displayName}
             </Heading>
             <Text>{currentUser.email}</Text>
+            <Text>{currentUser.phoneNumber}</Text>
           </Stack>
         </Stack>
-      </Stack>
+      </HStack>
     </Container>
   );
 };

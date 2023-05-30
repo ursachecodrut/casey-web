@@ -7,6 +7,7 @@ import {
   HStack,
   Heading,
   Input,
+  SkeletonText,
   Stack,
   Text,
   useToast,
@@ -198,7 +199,19 @@ export const ShoppingListPage = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container py="4" maxW="lg">
+        <SkeletonText
+          my="5"
+          noOfLines={1}
+          skeletonHeight="8"
+          spacing="4"
+          width="200px"
+        />
+
+        <SkeletonText noOfLines={20} skeletonHeight="4" spacing="4" />
+      </Container>
+    );
   }
 
   if (isError) {
@@ -210,7 +223,6 @@ export const ShoppingListPage = () => {
       <Stack spacing="4">
         <Heading size="lg">Your shopping list</Heading>
 
-        <Text>Current Shopping List</Text>
         <Text colorScheme="grey">
           {format(shopping.current.updatedAt.toDate(), 'dd/MM/yyyy HH:mm')}
         </Text>

@@ -130,7 +130,9 @@ export const Navbar = () => {
                 />
               </MenuButton>
               <MenuList>
-                <MenuItem>Profile</MenuItem>
+                <MenuItem onClick={() => navigate('/profile')}>
+                  Profile
+                </MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </MenuList>
