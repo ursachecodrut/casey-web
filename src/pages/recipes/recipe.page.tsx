@@ -125,15 +125,19 @@ export const RecipePage = () => {
 
         <Stack spacing="3">
           <Heading size="md">Want to cook this recipe?</Heading>
-          <HStack>
-            <Button
-              colorScheme="purple"
-              isLoading={isLoadingAddIngredients}
-              onClick={() => mutate()}
-            >
-              Add to shopping list
-            </Button>
-          </HStack>
+          {currentUser ? (
+            <HStack>
+              <Button
+                colorScheme="purple"
+                isLoading={isLoadingAddIngredients}
+                onClick={() => mutate()}
+              >
+                Add to shopping list
+              </Button>
+            </HStack>
+          ) : (
+            <Text fontSize="lg">Login to add ingredients to shopping list</Text>
+          )}
         </Stack>
 
         {currentUser && <ReviewComponent recipeId={recipe.id} />}
