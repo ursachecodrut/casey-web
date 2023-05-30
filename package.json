@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "deploy": "firebase deploy",
+    "deploy:build": "yarn build && yarn deploy",
     "eslint:check": "eslint --ext .ts,.tsx,.js,.jsx ./src",
     "eslint:fix": "yarn eslint:check --fix",
     "prettier:check": "prettier --check src/**/*.{ts,tsx,js,jsx,json,*rc}",
