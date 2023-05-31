@@ -1,5 +1,6 @@
 import {
   Box,
+  Center,
   Container,
   Input,
   InputGroup,
@@ -82,7 +83,7 @@ export const RecipesListPage = () => {
         </InputGroup>
       </Box>
 
-      <Wrap spacing="10">
+      <Wrap spacing="10" justify="center">
         {filteredData?.map((recipe) => (
           <WrapItem key={recipe.id}>
             <RecipeCard recipe={recipe} />
