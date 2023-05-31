@@ -100,7 +100,14 @@ export const addListToHistory = async (
 
   const shopping = shoppingSnap.data() as ShoppingDto;
 
-  const newHistory = [...shopping.history, list];
+  const checkedIngredients = list.ingredients.filter((i) => i.checked);
+
+  const newList: ShoppingListDto = {
+    updatedAt: list.updatedAt,
+    ingredients: checkedIngredients,
+  };
+
+  const newHistory = [...shopping.history, newList];
 
   await updateDoc(shoppingRef, {
     history: newHistory,

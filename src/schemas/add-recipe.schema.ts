@@ -11,6 +11,14 @@ export const RecipeSchema = z.object({
     .max(500, { message: 'Description must be at most 500 characters long' }),
   time: z.string().min(1, { message: 'Time is required' }),
   files: z.instanceof(FileList),
+  tag: z.enum([
+    'none',
+    'quick',
+    'vegan',
+    'vegetarian',
+    'gluten-free',
+    'high-protein',
+  ]),
   ingredients: z
     .array(
       z.object({

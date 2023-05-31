@@ -120,10 +120,6 @@ const ShoppingListForm = ({
     }
   };
 
-  const handleClearList = () => {
-    setValue('items', []);
-  };
-
   return (
     <Stack spacing="2" as="form" onSubmit={handleSubmit(onSubmit)}>
       {itemsFields.map((item, index) => (
@@ -165,9 +161,7 @@ const ShoppingListForm = ({
       <Button type="submit" colorScheme="green" isLoading={isSubmitting}>
         Save
       </Button>
-      <Button type="button" colorScheme="purple" onClick={handleClearList}>
-        Clear
-      </Button>
+
       <Button
         type="button"
         colorScheme="red"

@@ -12,6 +12,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Select,
   Stack,
   Text,
   Textarea,
@@ -144,6 +145,19 @@ export const AddRecipePage = () => {
                 />
               </InputGroup>
               <FormErrorMessage>{errors.files?.message}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl isInvalid={Boolean(errors.tag)}>
+              <FormLabel>Tag</FormLabel>
+              <Select {...register('tag')}>
+                <option value="none">none</option>
+                <option value="quick">quick</option>
+                <option value="vegan">vegan</option>
+                <option value="vegetarian">vegetarian</option>
+                <option value="gluten-free">gluten free</option>
+                <option value="high-protein">high protein</option>
+              </Select>
+              <FormErrorMessage>{errors.tag?.message}</FormErrorMessage>
             </FormControl>
 
             <Text fontSize="lg">Recipe Ingredients</Text>

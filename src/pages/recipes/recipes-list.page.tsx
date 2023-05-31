@@ -60,8 +60,10 @@ export const RecipesListPage = () => {
     <div>Error</div>;
   }
 
-  const filteredData = data?.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = data?.filter(
+    (recipe) =>
+      recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recipe.tag.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
