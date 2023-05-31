@@ -31,7 +31,7 @@ export const RecipePage = () => {
     queryFn: () => fetchRecipe(recipeId),
   });
 
-  const { mutate, isLoading: isLoadingAddIngredients } = useMutation({
+  const { mutateAsync, isLoading: isLoadingAddIngredients } = useMutation({
     mutationFn: () =>
       addIngredientsToShoppingList(recipe?.ingredients, currentUser?.uid),
     onSuccess: () => {
@@ -50,6 +50,10 @@ export const RecipePage = () => {
       });
     },
   });
+
+  const handleAddIngredients = async () => {
+    await mutateAsync();
+  };
 
   if (isLoading) {
     return (
@@ -83,7 +87,7 @@ export const RecipePage = () => {
   );
 
   return (
-    <Container maxW="lg">
+    <Container maxW="container.2xl">
       <Stack spacing="12">
         <Heading>{recipe.title}</Heading>
 
@@ -126,7 +130,7 @@ export const RecipePage = () => {
               <Button
                 colorScheme="purple"
                 isLoading={isLoadingAddIngredients}
-                onClick={() => mutate()}
+                onClick={handleAddIngredients}
               >
                 Add to shopping list
               </Button>

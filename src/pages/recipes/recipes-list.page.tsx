@@ -26,11 +26,7 @@ export const RecipesListPage = () => {
 
   if (isLoading) {
     return (
-      <Container
-        maxW="container.2xl"
-        py={{ base: '10', md: '22' }}
-        px={{ base: '0', sm: '8' }}
-      >
+      <Container maxW="container.2xl" px={{ base: '4', sm: '8' }}>
         <Box my="4">
           <InputGroup borderRadius="5">
             <InputLeftElement pointerEvents="none">
@@ -45,7 +41,7 @@ export const RecipesListPage = () => {
           </InputGroup>
         </Box>
 
-        <Wrap spacing="10">
+        <Wrap spacing="10" justify="center">
           {Array.from({ length: 10 }).map((_, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <WrapItem key={i}>
