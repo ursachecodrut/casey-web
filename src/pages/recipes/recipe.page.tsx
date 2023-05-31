@@ -83,11 +83,7 @@ export const RecipePage = () => {
   );
 
   return (
-    <Container
-      maxW="container.lg"
-      py={{ base: '12', md: '24' }}
-      px={{ base: '0', sm: '8' }}
-    >
+    <Container maxW="lg">
       <Stack spacing="12">
         <Heading>{recipe.title}</Heading>
 

@@ -213,7 +213,7 @@ export const ShoppingListPage = () => {
   }
 
   return (
-    <Container py="4" maxW="lg">
+    <Container maxW="lg">
       <Stack spacing="4">
         <Heading size="lg">Your shopping list</Heading>
 

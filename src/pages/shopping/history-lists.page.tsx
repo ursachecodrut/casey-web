@@ -52,7 +52,7 @@ export const HistoryListsPage = () => {
   }
 
   return (
-    <Container py="4" maxW="lg">
+    <Container maxW="lg">
       <Heading>History Lists</Heading>
 
       {shopping.history.length === 0 && (
